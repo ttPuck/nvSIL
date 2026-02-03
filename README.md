@@ -25,7 +25,7 @@ nvALT Inspired App for Apple Silicon!
 4. If the app is blocked from opening, go to security in settings and click "Open Anyway"
 
 # A (Hopefully) Faithful Replica of the Best Note Taking App: nvALT, Running on Apple Silicon This Time!
-<img width="830" height="626" alt="Screenshot 2026-02-03 at 3 08 58 AM" src="https://github.com/user-attachments/assets/c6c1cd56-bfb6-40d0-8efd-707c91b61048" />
+<img width="829" height="626" alt="Screenshot 2026-02-03 at 5 46 40 AM" src="https://github.com/user-attachments/assets/d8f2e477-9780-4a97-af55-36b579047fe2" />
 
 ### A Brief History of nvALT and It’s Impact on the Note-Taking Scene and Myself
 nvALT is a fork of an older application for macOS named "Notational Velocity" (circa 2005, created by Zachary Schneirov), an Objective-C application that gained popularity for it's lightning fast incremental search capabilities and emphasis on keyboard shortcuts. nvALT (circa 2010, created by Brett Terpstra) improved file handling, added markdown support, and added live preview capabilities.
@@ -109,3 +109,4 @@ Redo — Cmd+Shift+Z
 
 Select All — Cmd+A
 </h6>
+
