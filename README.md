@@ -41,9 +41,10 @@ https://github.com/scrod (Notational Velocity)
 
 https://github.com/ttscoff (nvALT)
 
-# A quick reference for keyboard shortcuts in nvSIL.
+###### A quick reference for keyboard shortcuts in nvSIL.
 
-Navigation
+**Navigation**
+
 Focus Search Field — Cmd+L
 
 Select Next Note — Cmd+J
@@ -56,7 +57,7 @@ Open Preferences — Cmd+,
 
 Bring to Front — Global hotkey (set in Preferences)
 
-Note Management
+**Note Management**
 
 Delete Note — Cmd+Backspace
 
@@ -72,7 +73,7 @@ Show in Finder — Cmd+Shift+R
 
 Copy Note URL — Cmd+Option+C
 
-Text Formatting
+**Text Formatting**
 
 Bold — Cmd+B
 
@@ -84,13 +85,13 @@ Strikethrough — Cmd+Y
 
 Remove Formatting — Cmd+T
 
-Indentation
+**Indentation**
 
 Indent — Tab (when enabled in Preferences)
 
 Outdent — Shift+Tab
 
-Standard macOS Shortcuts
+**Standard macOS Shortcuts**
 
 Cut — Cmd+X
 
