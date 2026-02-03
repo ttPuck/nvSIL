@@ -1,5 +1,32 @@
+# nvSIL ReadMe
+
+<p align="center">
+ <img width="140" height="140" alt="Puck_minimalistic_logo_for_a_note_taking_app_of_a_fountain_pe_2281859e-796f-4846-bafc-811f347b9499_0" src="https://github.com/user-attachments/assets/0e628a60-839c-4804-b90b-e7c430244755" /></p>
+
+<h1 align="center">nvSIL</h1>
+
+<p align="center">
+nvALT Inspired App for Apple Silicon!
+</p>
+
+<p align="center">
+  <a href="https://github.com/ttPuck/nvSIL/releases">
+    <img src="https://img.shields.io/github/v/release/ttPuck/nvSIL">
+  </a>
+  <a href="https://github.com/ttPuck/nvSIL/releases">
+    <img src="https://img.shields.io/github/downloads/ttPuck/nvSIL/total">
+  </a>
+  <img src="https://img.shields.io/badge/macOS-11.5%2B-blue">
+</p>
+          
+
+#### Installation
+1. Download nvSIL.app.zip from Releases
+2. Drag nvSIL.app to Applications
+3. Right-click the app and select "Open" (required first time only, since the app isn't notarized)
+
 # A (Hopefully) Faithful Replica of the Best Note Taking App: nvALT, Running on Apple Silicon This Time!
-<img width="749" height="539" alt="project4" src="https://github.com/user-attachments/assets/03b8ef71-da42-45cc-839a-b945bbdea794" />
+<img width="830" height="626" alt="Screenshot 2026-02-03 at 3 08 58 AM" src="https://github.com/user-attachments/assets/c6c1cd56-bfb6-40d0-8efd-707c91b61048" />
 
 ### A Brief History of nvALT and It’s Impact on the Note-Taking Scene and Myself
 nvALT is a fork of an older application for macOS named "Notational Velocity" (circa 2005, created by Zachary Schneirov), an Objective-C application that gained popularity for it's lightning fast incremental search capabilities and emphasis on keyboard shortcuts. nvALT (circa 2010, created by Brett Terpstra) improved file handling, added markdown support, and added live preview capabilities.
@@ -14,3 +41,43 @@ nvSIL is aimed to be a faster (around 20-30%), modern, and Silicon native versio
 https://github.com/scrod (Notational Velocity)
 
 https://github.com/ttscoff (nvALT)
+
+# A quick reference for keyboard shortcuts in nvSIL.
+
+Navigation
+Focus Search Field — Cmd+L
+Select Next Note — Cmd+J
+Select Previous Note — Cmd+K
+Deselect Note — Cmd+D
+Open Preferences — Cmd+,
+Bring to Front — Global hotkey (set in Preferences)
+
+Note Management
+New Note — Type in search field and press Enter
+Delete Note — Cmd+Backspace
+Rename Note — Cmd+R
+Edit Tags — Cmd+Shift+T
+Pin/Unpin Note — Cmd+Shift+P
+Export Note — Cmd+E
+Show in Finder — Cmd+Shift+R
+Copy Note URL — Cmd+Option+C
+
+Text Formatting
+Bold — Cmd+B
+Italic — Cmd+I
+Underline — Cmd+U
+Strikethrough — Cmd+Y
+Remove Formatting — Cmd+T
+
+Indentation
+Indent — Tab (when enabled in Preferences)
+Outdent — Shift+Tab
+
+Standard macOS Shortcuts
+Cut — Cmd+X
+Copy — Cmd+C
+Paste — Cmd+V
+Paste and Match Style — Cmd+Shift+V
+Undo — Cmd+Z
+Redo — Cmd+Shift+Z
+Select All — Cmd+A
