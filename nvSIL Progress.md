@@ -27,6 +27,7 @@ update:mainview "Window" -> nvSIL
 bugfixes -> Column resizing issue (extending past window, collapsing text), RTF syntax not applying to file and only in editor scene preview, tag modification changes date modified (useful when sorting)
 
 ## 0.3
+Added WikiLink style note linking! 
 Multiple Bug fixes
  
 ## 0.4
