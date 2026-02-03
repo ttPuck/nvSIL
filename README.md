@@ -45,38 +45,63 @@ https://github.com/ttscoff (nvALT)
 
 Navigation
 Focus Search Field — Cmd+L
+
 Select Next Note — Cmd+J
+
 Select Previous Note — Cmd+K
+
 Deselect Note — Cmd+D
+
 Open Preferences — Cmd+,
+
 Bring to Front — Global hotkey (set in Preferences)
 
 Note Management
-New Note — Type in search field and press Enter
+
 Delete Note — Cmd+Backspace
+
 Rename Note — Cmd+R
+
 Edit Tags — Cmd+Shift+T
+
 Pin/Unpin Note — Cmd+Shift+P
+
 Export Note — Cmd+E
+
 Show in Finder — Cmd+Shift+R
+
 Copy Note URL — Cmd+Option+C
 
 Text Formatting
+
 Bold — Cmd+B
+
 Italic — Cmd+I
+
 Underline — Cmd+U
+
 Strikethrough — Cmd+Y
+
 Remove Formatting — Cmd+T
 
 Indentation
+
 Indent — Tab (when enabled in Preferences)
+
 Outdent — Shift+Tab
 
 Standard macOS Shortcuts
+
 Cut — Cmd+X
+
 Copy — Cmd+C
+
 Paste — Cmd+V
+
 Paste and Match Style — Cmd+Shift+V
+
 Undo — Cmd+Z
+
 Redo — Cmd+Shift+Z
+
 Select All — Cmd+A
