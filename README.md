@@ -22,7 +22,7 @@ nvALT Inspired App for Apple Silicon!
 1. Download nvSIL.app.zip from Releases
 2. Drag nvSIL.app to Applications
 3. Right-click the app and select "Open" (required first time only, since the app isn't notarized)
-4. If app is blocked from opening, go to security in settings click "Open Anyway" 
+4. If the app is blocked from opening, go to security in settings and click "Open Anyway"
 
 # A (Hopefully) Faithful Replica of the Best Note Taking App: nvALT, Running on Apple Silicon This Time!
 <img width="830" height="626" alt="Screenshot 2026-02-03 at 3 08 58 AM" src="https://github.com/user-attachments/assets/c6c1cd56-bfb6-40d0-8efd-707c91b61048" />
