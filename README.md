@@ -1,5 +1,3 @@
-# nvSIL ReadMe
-
 <p align="center">
  <img width="140" height="140" alt="Puck_minimalistic_logo_for_a_note_taking_app_of_a_fountain_pe_2281859e-796f-4846-bafc-811f347b9499_0" src="https://github.com/user-attachments/assets/0e628a60-839c-4804-b90b-e7c430244755" /></p>
 
