@@ -275,12 +275,10 @@ class NoteManager {
         let bodyFont = NSFont(name: "Helvetica", size: 12) ?? NSFont.systemFont(ofSize: 12)
         let boldFont = NSFont(name: "Helvetica-Bold", size: 12) ?? NSFont.boldSystemFont(ofSize: 12)
         let headingFont = NSFont(name: "Helvetica-Bold", size: 16) ?? NSFont.boldSystemFont(ofSize: 16)
-        let subheadingFont = NSFont(name: "Helvetica-Bold", size: 14) ?? NSFont.boldSystemFont(ofSize: 14)
 
         let bodyAttrs: [NSAttributedString.Key: Any] = [.font: bodyFont]
         let boldAttrs: [NSAttributedString.Key: Any] = [.font: boldFont]
         let headingAttrs: [NSAttributedString.Key: Any] = [.font: headingFont]
-        let subheadingAttrs: [NSAttributedString.Key: Any] = [.font: subheadingFont]
 
         result.append(NSAttributedString(string: "A quick reference for keyboard shortcuts in nvSIL.\n\n", attributes: bodyAttrs))
 
