@@ -458,8 +458,9 @@ class NoteListViewController: NSViewController, NSWindowDelegate {
     private var tableView: NoteTableView!
     private var scrollView: NSScrollView!
     private var statusLabel: NSTextField!
-    private var scrollViewBottomToStatusBar: NSLayoutConstraint!
-    private var scrollViewBottomToContainer: NSLayoutConstraint!
+    private var containerView: NSView!
+    private var scrollViewBottomConstraint: NSLayoutConstraint?
+    private var statusBarVisible = true
 
     private var notes: [Note] = []
     var filteredNotes: [Note] = []
@@ -484,7 +485,7 @@ class NoteListViewController: NSViewController, NSWindowDelegate {
 
     override func loadView() {
         // Create main container view //
-        let containerView = NSView(frame: NSRect(x: 0, y: 0, width: 800, height: 300))
+        containerView = NSView(frame: NSRect(x: 0, y: 0, width: 800, height: 300))
 
         scrollView = NSScrollView()
         scrollView.translatesAutoresizingMaskIntoConstraints = false
@@ -574,10 +575,7 @@ class NoteListViewController: NSViewController, NSWindowDelegate {
         containerView.addSubview(scrollView)
         containerView.addSubview(statusLabel)
 
-        // Create both bottom constraints - one to status bar, one to container
-        scrollViewBottomToStatusBar = scrollView.bottomAnchor.constraint(equalTo: statusLabel.topAnchor)
-        scrollViewBottomToContainer = scrollView.bottomAnchor.constraint(equalTo: containerView.bottomAnchor)
-
+        // Set up constraints
         NSLayoutConstraint.activate([
             scrollView.topAnchor.constraint(equalTo: containerView.topAnchor),
             scrollView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor),
@@ -589,8 +587,9 @@ class NoteListViewController: NSViewController, NSWindowDelegate {
             statusLabel.heightAnchor.constraint(equalToConstant: 20)
         ])
 
-        // Set initial constraint based on preference
-        updateStatusBarConstraints()
+        // Initial bottom constraint for scrollView (will be updated in viewDidLoad)
+        scrollViewBottomConstraint = scrollView.bottomAnchor.constraint(equalTo: statusLabel.topAnchor)
+        scrollViewBottomConstraint?.isActive = true
 
         self.view = containerView
     }
@@ -640,7 +639,6 @@ class NoteListViewController: NSViewController, NSWindowDelegate {
     private func applyPreferences() {
         let prefs = Preferences.shared
 
-
         let rowHeight: CGFloat
         switch prefs.listTextSize {
         case .small: rowHeight = 17
@@ -649,30 +647,37 @@ class NoteListViewController: NSViewController, NSWindowDelegate {
         }
         tableView.rowHeight = rowHeight
 
-
         if prefs.alwaysShowGridLines {
             tableView.gridStyleMask = [.solidHorizontalGridLineMask]
         } else {
             tableView.gridStyleMask = []
         }
 
-
         tableView.usesAlternatingRowBackgroundColors = prefs.alternatingRowColors
 
-        updateStatusBarConstraints()
+        // Update status bar visibility
+        let shouldShowStatusBar = prefs.showNoteListStatusBar
+        if shouldShowStatusBar != statusBarVisible {
+            statusBarVisible = shouldShowStatusBar
+            updateStatusBarLayout()
+        }
     }
 
-    private func updateStatusBarConstraints() {
-        let showStatusBar = Preferences.shared.showNoteListStatusBar
-        statusLabel.isHidden = !showStatusBar
+    private func updateStatusBarLayout() {
+        statusLabel.isHidden = !statusBarVisible
 
-        if showStatusBar {
-            scrollViewBottomToContainer.isActive = false
-            scrollViewBottomToStatusBar.isActive = true
+        // Remove old constraint
+        scrollViewBottomConstraint?.isActive = false
+
+        // Create new constraint
+        if statusBarVisible {
+            scrollViewBottomConstraint = scrollView.bottomAnchor.constraint(equalTo: statusLabel.topAnchor)
         } else {
-            scrollViewBottomToStatusBar.isActive = false
-            scrollViewBottomToContainer.isActive = true
+            scrollViewBottomConstraint = scrollView.bottomAnchor.constraint(equalTo: containerView.bottomAnchor)
         }
+        scrollViewBottomConstraint?.isActive = true
+
+        containerView.layoutSubtreeIfNeeded()
     }
 
     private func configureTableView() {

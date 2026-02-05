@@ -5,8 +5,9 @@ class EditorViewController: NSViewController {
     private var scrollView: NSScrollView!
     var textView: NSTextView!
     private var statusLabel: NSTextField!
-    private var scrollViewBottomToStatusBar: NSLayoutConstraint!
-    private var scrollViewBottomToContainer: NSLayoutConstraint!
+    private var containerView: NSView!
+    private var scrollViewBottomConstraint: NSLayoutConstraint?
+    private var statusBarVisible = true
 
     private var currentNote: Note?
     private var updateTimer: Timer?
@@ -21,7 +22,7 @@ class EditorViewController: NSViewController {
     private var wikiLinkRange: NSRange?  // Range of the [[ pattern being typed
 
     override func loadView() {
-        let containerView = NSView(frame: NSRect(x: 0, y: 0, width: 550, height: 600))
+        containerView = NSView(frame: NSRect(x: 0, y: 0, width: 550, height: 600))
 
         scrollView = NSScrollView()
         scrollView.translatesAutoresizingMaskIntoConstraints = false
@@ -55,10 +56,7 @@ class EditorViewController: NSViewController {
         containerView.addSubview(scrollView)
         containerView.addSubview(statusLabel)
 
-        // Create both bottom constraints - one to status bar, one to container
-        scrollViewBottomToStatusBar = scrollView.bottomAnchor.constraint(equalTo: statusLabel.topAnchor)
-        scrollViewBottomToContainer = scrollView.bottomAnchor.constraint(equalTo: containerView.bottomAnchor)
-
+        // Set up constraints
         NSLayoutConstraint.activate([
             scrollView.topAnchor.constraint(equalTo: containerView.topAnchor),
             scrollView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor),
@@ -70,8 +68,9 @@ class EditorViewController: NSViewController {
             statusLabel.heightAnchor.constraint(equalToConstant: 20)
         ])
 
-        // Set initial constraint based on preference
-        updateStatusBarConstraints()
+        // Initial bottom constraint for scrollView (will be updated in viewDidLoad)
+        scrollViewBottomConstraint = scrollView.bottomAnchor.constraint(equalTo: statusLabel.topAnchor)
+        scrollViewBottomConstraint?.isActive = true
 
         self.view = containerView
     }
@@ -97,7 +96,13 @@ class EditorViewController: NSViewController {
         textView.isContinuousSpellCheckingEnabled = prefs.checkSpellingAsYouType
         textView.backgroundColor = prefs.backgroundColor
         textView.baseWritingDirection = prefs.rightToLeftDirection ? .rightToLeft : .leftToRight
-        updateStatusBarConstraints()
+
+        // Update status bar visibility
+        let shouldShowStatusBar = prefs.showEditorStatusBar
+        if shouldShowStatusBar != statusBarVisible {
+            statusBarVisible = shouldShowStatusBar
+            updateStatusBarLayout()
+        }
 
         // Update font and color while preserving formatting (bold, italic, etc.)
         if let textStorage = textView.textStorage, textStorage.length > 0 {
@@ -111,17 +116,21 @@ class EditorViewController: NSViewController {
         ]
     }
 
-    private func updateStatusBarConstraints() {
-        let showStatusBar = Preferences.shared.showEditorStatusBar
-        statusLabel.isHidden = !showStatusBar
+    private func updateStatusBarLayout() {
+        statusLabel.isHidden = !statusBarVisible
 
-        if showStatusBar {
-            scrollViewBottomToContainer.isActive = false
-            scrollViewBottomToStatusBar.isActive = true
+        // Remove old constraint
+        scrollViewBottomConstraint?.isActive = false
+
+        // Create new constraint
+        if statusBarVisible {
+            scrollViewBottomConstraint = scrollView.bottomAnchor.constraint(equalTo: statusLabel.topAnchor)
         } else {
-            scrollViewBottomToStatusBar.isActive = false
-            scrollViewBottomToContainer.isActive = true
+            scrollViewBottomConstraint = scrollView.bottomAnchor.constraint(equalTo: containerView.bottomAnchor)
         }
+        scrollViewBottomConstraint?.isActive = true
+
+        containerView.layoutSubtreeIfNeeded()
     }
 
     private func updateFontAndColorPreservingFormatting(textStorage: NSTextStorage, baseFont: NSFont, textColor: NSColor) {
