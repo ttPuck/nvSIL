@@ -5,6 +5,9 @@ class EditorViewController: NSViewController {
     private var scrollView: NSScrollView!
     var textView: NSTextView!
     private var statusLabel: NSTextField!
+    private var containerView: NSView!
+    private var scrollViewBottomConstraint: NSLayoutConstraint?
+    private var statusBarVisible = true
 
     private var currentNote: Note?
     private var updateTimer: Timer?
@@ -19,7 +22,7 @@ class EditorViewController: NSViewController {
     private var wikiLinkRange: NSRange?  // Range of the [[ pattern being typed
 
     override func loadView() {
-        let containerView = NSView(frame: NSRect(x: 0, y: 0, width: 550, height: 600))
+        containerView = NSView(frame: NSRect(x: 0, y: 0, width: 550, height: 600))
 
         scrollView = NSScrollView()
         scrollView.translatesAutoresizingMaskIntoConstraints = false
@@ -53,17 +56,21 @@ class EditorViewController: NSViewController {
         containerView.addSubview(scrollView)
         containerView.addSubview(statusLabel)
 
+        // Set up constraints
         NSLayoutConstraint.activate([
             scrollView.topAnchor.constraint(equalTo: containerView.topAnchor),
             scrollView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor),
             scrollView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor),
-            scrollView.bottomAnchor.constraint(equalTo: statusLabel.topAnchor),
 
             statusLabel.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 8),
             statusLabel.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -8),
             statusLabel.bottomAnchor.constraint(equalTo: containerView.bottomAnchor, constant: -4),
             statusLabel.heightAnchor.constraint(equalToConstant: 20)
         ])
+
+        // Initial bottom constraint for scrollView (will be updated in viewDidLoad)
+        scrollViewBottomConstraint = scrollView.bottomAnchor.constraint(equalTo: statusLabel.topAnchor)
+        scrollViewBottomConstraint?.isActive = true
 
         self.view = containerView
     }
@@ -90,6 +97,13 @@ class EditorViewController: NSViewController {
         textView.backgroundColor = prefs.backgroundColor
         textView.baseWritingDirection = prefs.rightToLeftDirection ? .rightToLeft : .leftToRight
 
+        // Update status bar visibility
+        let shouldShowStatusBar = prefs.showEditorStatusBar
+        if shouldShowStatusBar != statusBarVisible {
+            statusBarVisible = shouldShowStatusBar
+            updateStatusBarLayout()
+        }
+
         // Update font and color while preserving formatting (bold, italic, etc.)
         if let textStorage = textView.textStorage, textStorage.length > 0 {
             updateFontAndColorPreservingFormatting(textStorage: textStorage, baseFont: prefs.bodyFont, textColor: prefs.foregroundTextColor)
@@ -100,6 +114,23 @@ class EditorViewController: NSViewController {
             .font: prefs.bodyFont,
             .foregroundColor: prefs.foregroundTextColor
         ]
+    }
+
+    private func updateStatusBarLayout() {
+        statusLabel.isHidden = !statusBarVisible
+
+        // Remove old constraint
+        scrollViewBottomConstraint?.isActive = false
+
+        // Create new constraint
+        if statusBarVisible {
+            scrollViewBottomConstraint = scrollView.bottomAnchor.constraint(equalTo: statusLabel.topAnchor)
+        } else {
+            scrollViewBottomConstraint = scrollView.bottomAnchor.constraint(equalTo: containerView.bottomAnchor)
+        }
+        scrollViewBottomConstraint?.isActive = true
+
+        containerView.layoutSubtreeIfNeeded()
     }
 
     private func updateFontAndColorPreservingFormatting(textStorage: NSTextStorage, baseFont: NSFont, textColor: NSColor) {

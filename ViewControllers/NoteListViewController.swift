@@ -440,9 +440,27 @@ class ColoredHeaderCell: NSTableHeaderCell {
     }
 }
 
+// Custom NSTableView that forwards delete key to delegate
+class NoteTableView: NSTableView {
+    var onDeleteKeyPressed: (() -> Void)?
+
+    override func keyDown(with event: NSEvent) {
+        // Handle Cmd+Delete (backspace) - keyCode 51
+        if event.modifierFlags.contains(.command) && event.keyCode == 51 {
+            onDeleteKeyPressed?()
+            return
+        }
+        super.keyDown(with: event)
+    }
+}
+
 class NoteListViewController: NSViewController, NSWindowDelegate {
-    private var tableView: NSTableView!
+    private var tableView: NoteTableView!
+    private var scrollView: NSScrollView!
     private var statusLabel: NSTextField!
+    private var containerView: NSView!
+    private var scrollViewBottomConstraint: NSLayoutConstraint?
+    private var statusBarVisible = true
 
     private var notes: [Note] = []
     var filteredNotes: [Note] = []
@@ -467,9 +485,9 @@ class NoteListViewController: NSViewController, NSWindowDelegate {
 
     override func loadView() {
         // Create main container view //
-        let containerView = NSView(frame: NSRect(x: 0, y: 0, width: 800, height: 300))
-        
-        let scrollView = NSScrollView()
+        containerView = NSView(frame: NSRect(x: 0, y: 0, width: 800, height: 300))
+
+        scrollView = NSScrollView()
         scrollView.translatesAutoresizingMaskIntoConstraints = false
         scrollView.hasVerticalScroller = true
         scrollView.hasHorizontalScroller = false
@@ -480,7 +498,10 @@ class NoteListViewController: NSViewController, NSWindowDelegate {
         scrollView.verticalScroller?.knobStyle = .dark
         
         // Create table view //
-        tableView = NSTableView()
+        tableView = NoteTableView()
+        tableView.onDeleteKeyPressed = { [weak self] in
+            self?.deleteSelectedNote()
+        }
         tableView.rowHeight = 17
         tableView.usesAlternatingRowBackgroundColors = true
         tableView.gridStyleMask = [.solidHorizontalGridLineMask]
@@ -553,20 +574,23 @@ class NoteListViewController: NSViewController, NSWindowDelegate {
         
         containerView.addSubview(scrollView)
         containerView.addSubview(statusLabel)
-        
-        
+
+        // Set up constraints
         NSLayoutConstraint.activate([
             scrollView.topAnchor.constraint(equalTo: containerView.topAnchor),
             scrollView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor),
             scrollView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor),
-            scrollView.bottomAnchor.constraint(equalTo: statusLabel.topAnchor),
-            
+
             statusLabel.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 8),
             statusLabel.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -8),
             statusLabel.bottomAnchor.constraint(equalTo: containerView.bottomAnchor, constant: -4),
             statusLabel.heightAnchor.constraint(equalToConstant: 20)
         ])
-        
+
+        // Initial bottom constraint for scrollView (will be updated in viewDidLoad)
+        scrollViewBottomConstraint = scrollView.bottomAnchor.constraint(equalTo: statusLabel.topAnchor)
+        scrollViewBottomConstraint?.isActive = true
+
         self.view = containerView
     }
     
@@ -614,8 +638,7 @@ class NoteListViewController: NSViewController, NSWindowDelegate {
     
     private func applyPreferences() {
         let prefs = Preferences.shared
-        
-        
+
         let rowHeight: CGFloat
         switch prefs.listTextSize {
         case .small: rowHeight = 17
@@ -623,18 +646,40 @@ class NoteListViewController: NSViewController, NSWindowDelegate {
         case .large: rowHeight = 24
         }
         tableView.rowHeight = rowHeight
-        
-        
+
         if prefs.alwaysShowGridLines {
             tableView.gridStyleMask = [.solidHorizontalGridLineMask]
         } else {
             tableView.gridStyleMask = []
         }
-        
-        
+
         tableView.usesAlternatingRowBackgroundColors = prefs.alternatingRowColors
+
+        // Update status bar visibility
+        let shouldShowStatusBar = prefs.showNoteListStatusBar
+        if shouldShowStatusBar != statusBarVisible {
+            statusBarVisible = shouldShowStatusBar
+            updateStatusBarLayout()
+        }
     }
-    
+
+    private func updateStatusBarLayout() {
+        statusLabel.isHidden = !statusBarVisible
+
+        // Remove old constraint
+        scrollViewBottomConstraint?.isActive = false
+
+        // Create new constraint
+        if statusBarVisible {
+            scrollViewBottomConstraint = scrollView.bottomAnchor.constraint(equalTo: statusLabel.topAnchor)
+        } else {
+            scrollViewBottomConstraint = scrollView.bottomAnchor.constraint(equalTo: containerView.bottomAnchor)
+        }
+        scrollViewBottomConstraint?.isActive = true
+
+        containerView.layoutSubtreeIfNeeded()
+    }
+
     private func configureTableView() {
         tableView.delegate = self
         tableView.dataSource = self
@@ -927,7 +972,9 @@ class NoteListViewController: NSViewController, NSWindowDelegate {
 
         let pasteboard = NSPasteboard.general
         pasteboard.clearContents()
-        pasteboard.setString(note.fileURL.absoluteString, forType: .string)
+        // Copy the directory path (notes folder) instead of the file URL
+        let directoryURL = note.fileURL.deletingLastPathComponent()
+        pasteboard.setString(directoryURL.path, forType: .string)
     }
 
     @objc private func togglePinNote(_ sender: Any?) {
@@ -1429,6 +1476,27 @@ extension NoteListViewController: NSTextFieldDelegate {
 
         if let tagsColumn = tableView.tableColumns.firstIndex(where: { $0.identifier.rawValue == "TagsColumn" }) {
             tableView.reloadData(forRowIndexes: IndexSet(integer: row), columnIndexes: IndexSet(integer: tagsColumn))
+        }
+    }
+
+    // MARK: - Keyboard Handling
+
+    private func deleteSelectedNote() {
+        guard let note = selectedNote else { return }
+
+        if Preferences.shared.confirmNoteDeletion {
+            let alert = NSAlert()
+            alert.messageText = "Delete Note"
+            alert.informativeText = "Are you sure you want to delete \"\(note.title)\"? This cannot be undone."
+            alert.alertStyle = .warning
+            alert.addButton(withTitle: "Delete")
+            alert.addButton(withTitle: "Cancel")
+
+            if alert.runModal() == .alertFirstButtonReturn {
+                NoteManager.shared.deleteNote(note)
+            }
+        } else {
+            NoteManager.shared.deleteNote(note)
         }
     }
 }
