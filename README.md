@@ -33,7 +33,7 @@ nvALT is a fork of an older application for macOS named "Notational Velocity" (c
 I have been a PKM's nightmare for the past decade trying to decipher the best note taking system for my brain, and then I discovered nvALT. The initial system developed by Zachary Schneirov, then modified by Brett Terpstra to make the UX/UI more up to date with cursor involvement clicked with my brain instantly. My brain remembers things in clusters, and struggles with folders. Having all of my notes at my finger tips, able to search for a tag, a keyword, or a title instantly anywhere from my mac had me in a chokehold. 
 
 I didn't even notice the application was layering through rosetta at first on my M1 Air, which is where this project comes in.
-# Developed in Swift Using Storyboard UI, Compiled for Apple Silicon
+# Developed in Swift using Storyboards, built for Apple Silicon (ARM64)
 nvSIL is aimed to be a faster (around 20-30%), modern, and Silicon native version of nvALT. It is not a fork, as nvALT (being a fork of Notational Veloctiy) was written in Objective-C, and is a separate application from the ground up.
 
 # Links To Mentioned Peoples. Check Them Out!
