@@ -260,7 +260,7 @@ class EditorViewController: NSViewController {
                         textStorage.addAttribute(Self.wikiLinkAttribute, value: linkText, range: matchRange)
 
                         if let encodedLinkText = linkText.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) {
-                            let wikiURL = URL(string: "nvsil:
+                            let wikiURL = URL(string: "nvsil://wiki/\(encodedLinkText)")
                             textStorage.addAttribute(.link, value: wikiURL as Any, range: matchRange)
                         }
 
