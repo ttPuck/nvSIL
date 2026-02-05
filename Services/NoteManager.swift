@@ -22,7 +22,7 @@ class NoteManager {
 
     private init() {}
     
-    // MARK: - Directory Management
+    
     
     func setNotesDirectory(_ directory: URL) throws {
         self.notesDirectory = directory
@@ -48,13 +48,13 @@ class NoteManager {
     func loadNotes(from directory: URL) throws {
         let loadedNotes = try fileManager.loadNotes(from: directory)
 
-        // Preserve the currently edited note to avoid overwriting user's changes
+        
         if let editingID = currentlyEditingNoteID,
            let currentNote = notes.first(where: { $0.id == editingID }) {
-            // Replace all notes except the one being edited
+            
             notes = loadedNotes.map { loadedNote in
                 if loadedNote.id == editingID {
-                    return currentNote  // Keep the in-memory version
+                    return currentNote  
                 }
                 return loadedNote
             }
@@ -137,13 +137,13 @@ class NoteManager {
         }
     }
 
-    // MARK: - Editing State
+    
 
     func setCurrentlyEditingNote(_ note: Note?) {
         currentlyEditingNoteID = note?.id
     }
 
-    // MARK: - Pinning
+    
 
     func togglePinNote(_ note: Note) {
         note.isPinned = !note.isPinned
@@ -158,7 +158,7 @@ class NoteManager {
             try? note.fileURL.setExtendedAttribute(data: data, forName: "nvSIL.pinned")
         }
 
-        // Also update the file modification date to trigger refresh
+        
         let now = Date()
         try? FileManager.default.setAttributes([.modificationDate: now], ofItemAtPath: note.fileURL.path)
         note.dateModified = now
@@ -166,16 +166,16 @@ class NoteManager {
 
     private func sortNotes() {
         notes.sort { note1, note2 in
-            // Pinned notes come first
+            
             if note1.isPinned != note2.isPinned {
                 return note1.isPinned
             }
-            // Then sort by date modified (most recent first)
+            
             return note1.dateModified > note2.dateModified
         }
     }
 
-    // MARK: - Utilities
+    
 
     func note(withID id: UUID) -> Note? {
         notes.first { $0.id == id }
@@ -185,23 +185,23 @@ class NoteManager {
         notes.first { $0.fileURL == url }
     }
 
-    /// Returns all unique tags across all notes
+    
     var allUniqueTags: Set<String> {
         notes.reduce(into: Set<String>()) { $0.formUnion($1.tags) }
     }
 
-    /// Returns all note titles for auto-suggest
+    
     var allNoteTitles: [String] {
         notes.map { $0.title }
     }
 
-    /// Search notes by title prefix (case-insensitive)
+    
     func notesMatchingTitlePrefix(_ prefix: String) -> [Note] {
         let lowercasedPrefix = prefix.lowercased()
         return notes.filter { $0.title.lowercased().hasPrefix(lowercasedPrefix) }
     }
 
-    /// Search notes containing title substring (case-insensitive)
+    
     func notesContainingTitle(_ substring: String) -> [Note] {
         let lowercasedSubstring = substring.lowercased()
         return notes.filter { $0.title.lowercased().contains(lowercasedSubstring) }
@@ -213,7 +213,7 @@ class NoteManager {
         let title = "Welcome to nvSIL!"
         let fileURL = directory.appendingPathComponent("\(title).rtf")
 
-        // Only create if the file doesn't already exist
+        
         guard !FileManager.default.fileExists(atPath: fileURL.path) else { return }
 
         let content = buildWelcomeNoteContent()
@@ -244,7 +244,7 @@ class NoteManager {
         let title = "Useful Shortcuts!"
         let fileURL = directory.appendingPathComponent("\(title).rtf")
 
-        // Only create if the file doesn't already exist
+        
         guard !FileManager.default.fileExists(atPath: fileURL.path) else { return }
 
         let content = buildShortcutsNoteContent()
@@ -282,7 +282,7 @@ class NoteManager {
 
         result.append(NSAttributedString(string: "A quick reference for keyboard shortcuts in nvSIL.\n\n", attributes: bodyAttrs))
 
-        // Navigation
+        
         result.append(NSAttributedString(string: "Navigation\n", attributes: headingAttrs))
         result.append(NSAttributedString(string: "Focus Search Field", attributes: boldAttrs))
         result.append(NSAttributedString(string: " — Cmd+L\n", attributes: bodyAttrs))
@@ -297,7 +297,7 @@ class NoteManager {
         result.append(NSAttributedString(string: "Bring to Front", attributes: boldAttrs))
         result.append(NSAttributedString(string: " — Global hotkey (set in Preferences)\n\n", attributes: bodyAttrs))
 
-        // Note Management
+        
         result.append(NSAttributedString(string: "Note Management\n", attributes: headingAttrs))
         result.append(NSAttributedString(string: "New Note", attributes: boldAttrs))
         result.append(NSAttributedString(string: " — Type in search field and press Enter\n", attributes: bodyAttrs))
@@ -316,7 +316,7 @@ class NoteManager {
         result.append(NSAttributedString(string: "Copy Note URL", attributes: boldAttrs))
         result.append(NSAttributedString(string: " — Cmd+Option+C\n\n", attributes: bodyAttrs))
 
-        // Text Formatting
+        
         result.append(NSAttributedString(string: "Text Formatting\n", attributes: headingAttrs))
         result.append(NSAttributedString(string: "Bold", attributes: boldAttrs))
         result.append(NSAttributedString(string: " — Cmd+B\n", attributes: bodyAttrs))
@@ -329,14 +329,14 @@ class NoteManager {
         result.append(NSAttributedString(string: "Remove Formatting", attributes: boldAttrs))
         result.append(NSAttributedString(string: " — Cmd+T\n\n", attributes: bodyAttrs))
 
-        // Indentation
+        
         result.append(NSAttributedString(string: "Indentation\n", attributes: headingAttrs))
         result.append(NSAttributedString(string: "Indent", attributes: boldAttrs))
         result.append(NSAttributedString(string: " — Tab (when enabled in Preferences)\n", attributes: bodyAttrs))
         result.append(NSAttributedString(string: "Outdent", attributes: boldAttrs))
         result.append(NSAttributedString(string: " — Shift+Tab\n\n", attributes: bodyAttrs))
 
-        // Standard macOS
+        
         result.append(NSAttributedString(string: "Standard macOS Shortcuts\n", attributes: headingAttrs))
         result.append(NSAttributedString(string: "Cut", attributes: boldAttrs))
         result.append(NSAttributedString(string: " — Cmd+X\n", attributes: bodyAttrs))
@@ -373,7 +373,7 @@ class NoteManager {
 
         result.append(NSAttributedString(string: "A lightweight, free and open source note-taking app for macOS, inspired by nvALT.\n\n", attributes: bodyAttrs))
 
-        // Privacy & Philosophy section
+        
         result.append(NSAttributedString(string: "Privacy & Philosophy\n", attributes: headingAttrs))
         result.append(NSAttributedString(string: "nvSIL is ", attributes: bodyAttrs))
         result.append(NSAttributedString(string: "100% free and open source", attributes: boldAttrs))
@@ -390,13 +390,13 @@ class NoteManager {
         result.append(NSAttributedString(string: "• Your notes are just plain files (.rtf, .txt, .md) that you own forever\n\n", attributes: bodyAttrs))
         result.append(NSAttributedString(string: "Thank you for using nvSIL :) — ttPuck\n\n", attributes: italicAttrs))
 
-        // Getting Started
+        
         result.append(NSAttributedString(string: "Getting Started\n", attributes: headingAttrs))
         result.append(NSAttributedString(string: "1. Select a folder to store your notes\n", attributes: bodyAttrs))
         result.append(NSAttributedString(string: "2. Start typing in the search field to create or find notes\n", attributes: bodyAttrs))
         result.append(NSAttributedString(string: "3. Press Enter to create a new note or select an existing one\n\n", attributes: bodyAttrs))
 
-        // Basic Usage
+        
         result.append(NSAttributedString(string: "Basic Usage\n", attributes: headingAttrs))
 
         result.append(NSAttributedString(string: "Creating Notes\n", attributes: subheadingAttrs))
@@ -426,7 +426,7 @@ class NoteManager {
         result.append(NSAttributedString(string: "#", attributes: boldAttrs))
         result.append(NSAttributedString(string: " to show all notes that have any tags\n\n", attributes: bodyAttrs))
 
-        // Features
+        
         result.append(NSAttributedString(string: "Features\n", attributes: headingAttrs))
         result.append(NSAttributedString(string: "• Rich text editing with bold, italic, and strikethrough\n", attributes: bodyAttrs))
         result.append(NSAttributedString(string: "• Pin important notes to the top of the list\n", attributes: bodyAttrs))
@@ -438,13 +438,13 @@ class NoteManager {
         result.append(NSAttributedString(string: "• Optional menu bar icon\n", attributes: bodyAttrs))
         result.append(NSAttributedString(string: "• Global hotkey to bring app to front\n\n", attributes: bodyAttrs))
 
-        // File Format
+        
         result.append(NSAttributedString(string: "File Format\n", attributes: headingAttrs))
         result.append(NSAttributedString(string: "• Notes are stored as individual .rtf files (default)\n", attributes: bodyAttrs))
         result.append(NSAttributedString(string: "• Also supports .txt and .md files\n", attributes: bodyAttrs))
         result.append(NSAttributedString(string: "• Tags are stored in file extended attributes\n\n", attributes: bodyAttrs))
 
-        // Preferences
+        
         result.append(NSAttributedString(string: "Preferences\n", attributes: headingAttrs))
         result.append(NSAttributedString(string: "Access via ", attributes: bodyAttrs))
         result.append(NSAttributedString(string: "nvSIL > Preferences", attributes: boldAttrs))
@@ -462,7 +462,7 @@ class NoteManager {
         result.append(NSAttributedString(string: "Fonts & Colors", attributes: boldAttrs))
         result.append(NSAttributedString(string: ": Font, colors, search highlighting, grid lines\n\n", attributes: bodyAttrs))
 
-        // History section
+        
         result.append(NSAttributedString(string: "History\n", attributes: headingAttrs))
         result.append(NSAttributedString(string: "nvSIL is a Swift reimplementation of ", attributes: bodyAttrs))
         result.append(NSAttributedString(string: "nvALT", attributes: boldAttrs))

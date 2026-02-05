@@ -52,7 +52,7 @@ extension Note {
     }
 }
 
-// MARK: - RTF Helpers
+
 
 extension String {
     func rtfAttributedString() -> NSAttributedString? {
@@ -63,7 +63,7 @@ extension String {
             documentAttributes: nil
         )
     }
-// Screw this thing btw :) 
+
     func plainText() -> String {
         rtfAttributedString()?.string ?? self
     }

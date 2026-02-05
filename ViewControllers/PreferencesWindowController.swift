@@ -159,7 +159,6 @@ class PreferencesWindowController: NSWindowController {
 
         let folderButton = NSPopUpButton(frame: NSRect(x: 220, y: yPos - 2, width: 200, height: 26), pullsDown: false)
         folderButton.addItem(withTitle: NoteManager.shared.notesDirectory?.lastPathComponent ?? "Choose Folder...")
-        // Create a smaller folder icon
         if let folderIcon = NSImage(named: NSImage.folderName) {
             let smallIcon = NSImage(size: NSSize(width: 16, height: 16))
             smallIcon.lockFocus()
@@ -330,8 +329,6 @@ class PreferencesWindowController: NSWindowController {
         item.view = view
         return item
     }
-
-    // MARK: - Fonts & Colors Tab
 
     private func createFontsColorsTab() -> NSTabViewItem {
         let item = NSTabViewItem(identifier: "fontscolors")
@@ -605,8 +602,6 @@ extension PreferencesWindowController: NSTabViewDelegate {
     }
 }
 
-// MARK: - KeyRecorderView
-
 class KeyRecorderView: NSView {
     private var displayField: NSTextField!
     private var setButton: NSButton!
@@ -680,7 +675,6 @@ class KeyRecorderView: NSView {
             return
         }
 
-        // Build key combo string
         var modifiers: [String] = []
         if event.modifierFlags.contains(.control) { modifiers.append("⌃") }
         if event.modifierFlags.contains(.option) { modifiers.append("⌥") }
@@ -690,7 +684,7 @@ class KeyRecorderView: NSView {
         let key = event.charactersIgnoringModifiers?.uppercased() ?? ""
         let combo = modifiers.joined() + key
 
-        if !combo.isEmpty && combo != key { // Must have at least one modifier
+        if !combo.isEmpty && combo != key {
             keyCombo = combo
             onKeyComboChanged?(combo)
             stopRecording()
@@ -698,7 +692,6 @@ class KeyRecorderView: NSView {
     }
 
     override func flagsChanged(with event: NSEvent) {
-        // Show current modifiers while recording
         if isRecording {
             var modifiers: [String] = []
             if event.modifierFlags.contains(.control) { modifiers.append("⌃") }

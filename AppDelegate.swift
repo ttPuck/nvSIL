@@ -7,16 +7,16 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private var statusItem: NSStatusItem?
 
     func applicationDidFinishLaunching(_ aNotification: Notification) {
-        // Force light mode - disable dark mode completely
+        
         NSApp.appearance = NSAppearance(named: .aqua)
 
-        // Setup menu bar icon if preference is enabled
+        
         setupMenuBarIcon()
 
-        // Initialize global hotkey manager
+        
         _ = HotkeyManager.shared
 
-        // Observe preference changes
+        
         NotificationCenter.default.addObserver(
             self,
             selector: #selector(preferencesDidChange),
@@ -36,7 +36,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             if statusItem == nil {
                 statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
                 if let button = statusItem?.button {
-                    // Use app icon for menu bar (scaled down)
+                    
                     if let appIcon = NSApp.applicationIconImage {
                         let size = NSSize(width: 18, height: 18)
                         let scaledIcon = NSImage(size: size)
@@ -64,7 +64,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     @objc private func statusItemClicked() {
-        // Bring app to front and show main window
+        
         NSApp.activate(ignoringOtherApps: true)
         NSApp.windows.first?.makeKeyAndOrderFront(nil)
     }

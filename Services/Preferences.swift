@@ -43,7 +43,7 @@ class Preferences {
         static let dateColumnProportion = "dateColumnProportion"
     }
 
-    // MARK: - General
+    
 
     enum ListTextSize: String, CaseIterable {
         case small = "Small"
@@ -92,7 +92,7 @@ class Preferences {
     var confirmNoteDeletion: Bool {
         get {
             if defaults.object(forKey: Keys.confirmNoteDeletion) == nil {
-                return true // Default to true
+                return true 
             }
             return defaults.bool(forKey: Keys.confirmNoteDeletion)
         }
@@ -105,7 +105,7 @@ class Preferences {
     var quitWhenClosingWindow: Bool {
         get {
             if defaults.object(forKey: Keys.quitWhenClosingWindow) == nil {
-                return true // Default to true
+                return true 
             }
             return defaults.bool(forKey: Keys.quitWhenClosingWindow)
         }
@@ -134,7 +134,7 @@ class Preferences {
     var enableNoteLinking: Bool {
         get {
             if defaults.object(forKey: Keys.enableNoteLinking) == nil {
-                return true // Default to true
+                return true 
             }
             return defaults.bool(forKey: Keys.enableNoteLinking)
         }
@@ -144,7 +144,7 @@ class Preferences {
         }
     }
 
-    // MARK: - Notes
+    
 
     var notesDirectoryBookmark: Data? {
         get { defaults.data(forKey: Keys.notesDirectoryBookmark) }
@@ -157,7 +157,7 @@ class Preferences {
     var storeNotesAsRTF: Bool {
         get {
             if defaults.object(forKey: Keys.storeNotesAsRTF) == nil {
-                return true // Default to RTF
+                return true 
             }
             return defaults.bool(forKey: Keys.storeNotesAsRTF)
         }
@@ -170,7 +170,7 @@ class Preferences {
     var watchForExternalChanges: Bool {
         get {
             if defaults.object(forKey: Keys.watchForExternalChanges) == nil {
-                return true // Default to true
+                return true 
             }
             return defaults.bool(forKey: Keys.watchForExternalChanges)
         }
@@ -180,7 +180,7 @@ class Preferences {
         }
     }
 
-    // MARK: - Editing
+    
 
     var copyBasicStylesFromOtherApps: Bool {
         get {
@@ -279,7 +279,7 @@ class Preferences {
         }
     }
 
-    // MARK: - Fonts & Colors
+    
 
     var bodyFont: NSFont {
         get {
@@ -409,12 +409,12 @@ class Preferences {
         }
     }
 
-    // MARK: - UI State
+    
 
     var splitViewDividerPosition: CGFloat {
         get {
             let value = defaults.double(forKey: Keys.splitViewDividerPosition)
-            return value > 0 ? CGFloat(value) : 0.5  // Default to 50%
+            return value > 0 ? CGFloat(value) : 0.5  
         }
         set {
             defaults.set(Double(newValue), forKey: Keys.splitViewDividerPosition)
@@ -452,7 +452,7 @@ class Preferences {
     }
 
 
-    // MARK: - Init
+    
 
     private init() {
         registerDefaults()

@@ -12,7 +12,7 @@ class MainViewController: NSViewController {
     private var editorViewController: EditorViewController!
     private var currentSearchQuery = ""
     private var isUpdatingSearchFieldProgrammatically = false
-    private var isUserActivelySearching = false  // True only when user types in search field
+    private var isUserActivelySearching = false  
 
     override func loadView() {
         let containerView = NSView(frame: NSRect(x: 0, y: 0, width: 800, height: 600))
@@ -22,7 +22,7 @@ class MainViewController: NSViewController {
         searchField.placeholderString = "Search or Create"
 
         splitView = NSSplitView()
-        splitView.isVertical = false  // false = vertical stacking (top/bottom)
+        splitView.isVertical = false  
         splitView.dividerStyle = .thin
         splitView.translatesAutoresizingMaskIntoConstraints = false
 
@@ -185,7 +185,7 @@ class MainViewController: NSViewController {
     }
 
     @objc private func notesDidChange() {
-        // Only filter if user is actively searching, otherwise show all notes
+        
         if isUserActivelySearching && !currentSearchQuery.isEmpty {
             performSearch()
         } else {
@@ -194,13 +194,13 @@ class MainViewController: NSViewController {
     }
 
     @objc private func noteWasUpdated(_ notification: Notification) {
-        // If a note was renamed and it's currently selected, update the search field
+        
         guard let updatedNote = notification.userInfo?["note"] as? Note,
               let selectedNote = noteListViewController.selectedNote,
               updatedNote.id == selectedNote.id else {
             return
         }
-        // Update search field with new note title (but don't trigger filtering)
+        
         isUpdatingSearchFieldProgrammatically = true
         searchField.stringValue = updatedNote.title
         isUpdatingSearchFieldProgrammatically = false
@@ -219,10 +219,10 @@ class MainViewController: NSViewController {
             let tagQuery = String(query.dropFirst())
             let filtered: [Note]
             if tagQuery.isEmpty {
-                // If just "#", show all notes that have any tags
+                
                 filtered = notes.filter { !$0.tags.isEmpty }
             } else {
-                // Otherwise, filter by tag content
+                
                 filtered = notes.filter { note in
                     note.tags.contains { $0.lowercased().contains(tagQuery) }
                 }
@@ -261,14 +261,14 @@ class MainViewController: NSViewController {
         guard !trimmedTitle.isEmpty else { return }
 
         if let existingNote = NoteManager.shared.notes.first(where: { $0.title.lowercased() == trimmedTitle.lowercased() }) {
-            // Navigate to existing note
+            
             noteListViewController.selectNote(existingNote)
             displayNote(existingNote)
         } else {
             if let newNote = NoteManager.shared.createNote(withTitle: trimmedTitle, content: "") {
                 noteListViewController.selectNote(newNote)
                 displayNote(newNote)
-                // Focus editor for immediate editing
+                
                 view.window?.makeFirstResponder(editorViewController.textView)
             }
         }
@@ -296,7 +296,7 @@ extension MainViewController: NSSearchFieldDelegate {
 
         guard !isUpdatingSearchFieldProgrammatically else { return }
 
-        // User is actively typing in the search field
+        
         isUserActivelySearching = true
         currentSearchQuery = searchField.stringValue
         performSearch()
@@ -573,7 +573,7 @@ extension MainViewController {
         guard let pasteboard = NSPasteboard.general.string(forType: .string),
               !pasteboard.isEmpty else { return }
 
-        // Use first line as title, or first 50 chars
+        
         let lines = pasteboard.components(separatedBy: .newlines)
         let firstLine = lines.first ?? ""
         let title = firstLine.isEmpty ? String(pasteboard.prefix(50)) : String(firstLine.prefix(100))

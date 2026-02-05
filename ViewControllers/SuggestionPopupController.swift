@@ -35,7 +35,7 @@ class SuggestionPopupController: NSObject {
             createPopupWindow()
         }
 
-        // Calculate window frame
+        
         let visibleRows = min(suggestions.count, maxVisibleRows)
         let height = CGFloat(visibleRows) * rowHeight + 4
         let frame = NSRect(x: point.x, y: point.y - height, width: popupWidth, height: height)
@@ -117,7 +117,7 @@ class SuggestionPopupController: NSObject {
         panel.hasShadow = true
         panel.backgroundColor = .white
 
-        // Create scroll view
+        
         scrollView = NSScrollView(frame: panel.contentView!.bounds)
         scrollView.autoresizingMask = [.width, .height]
         scrollView.hasVerticalScroller = true
@@ -126,7 +126,7 @@ class SuggestionPopupController: NSObject {
         scrollView.drawsBackground = true
         scrollView.backgroundColor = .white
 
-        // Create table view
+        
         tableView = NSTableView(frame: scrollView.bounds)
         tableView.headerView = nil
         tableView.rowHeight = rowHeight

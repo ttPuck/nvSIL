@@ -17,9 +17,9 @@ class EditorViewController: NSViewController {
 
     private static let wikiLinkAttribute = NSAttributedString.Key("nvSIL.wikiLink")
 
-    // Wiki link auto-suggest
+    
     private var suggestionPopup: SuggestionPopupController?
-    private var wikiLinkRange: NSRange?  // Range of the [[ pattern being typed
+    private var wikiLinkRange: NSRange?  
 
     override func loadView() {
         containerView = NSView(frame: NSRect(x: 0, y: 0, width: 550, height: 600))
@@ -56,7 +56,7 @@ class EditorViewController: NSViewController {
         containerView.addSubview(scrollView)
         containerView.addSubview(statusLabel)
 
-        // Set up constraints
+        
         NSLayoutConstraint.activate([
             scrollView.topAnchor.constraint(equalTo: containerView.topAnchor),
             scrollView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor),
@@ -68,7 +68,7 @@ class EditorViewController: NSViewController {
             statusLabel.heightAnchor.constraint(equalToConstant: 20)
         ])
 
-        // Initial bottom constraint for scrollView (will be updated in viewDidLoad)
+        
         scrollViewBottomConstraint = scrollView.bottomAnchor.constraint(equalTo: statusLabel.topAnchor)
         scrollViewBottomConstraint?.isActive = true
 
@@ -97,19 +97,19 @@ class EditorViewController: NSViewController {
         textView.backgroundColor = prefs.backgroundColor
         textView.baseWritingDirection = prefs.rightToLeftDirection ? .rightToLeft : .leftToRight
 
-        // Update status bar visibility
+        
         let shouldShowStatusBar = prefs.showEditorStatusBar
         if shouldShowStatusBar != statusBarVisible {
             statusBarVisible = shouldShowStatusBar
             updateStatusBarLayout()
         }
 
-        // Update font and color while preserving formatting (bold, italic, etc.)
+        
         if let textStorage = textView.textStorage, textStorage.length > 0 {
             updateFontAndColorPreservingFormatting(textStorage: textStorage, baseFont: prefs.bodyFont, textColor: prefs.foregroundTextColor)
         }
 
-        // Update typing attributes for new text
+        
         textView.typingAttributes = [
             .font: prefs.bodyFont,
             .foregroundColor: prefs.foregroundTextColor
@@ -119,10 +119,10 @@ class EditorViewController: NSViewController {
     private func updateStatusBarLayout() {
         statusLabel.isHidden = !statusBarVisible
 
-        // Remove old constraint
+        
         scrollViewBottomConstraint?.isActive = false
 
-        // Create new constraint
+        
         if statusBarVisible {
             scrollViewBottomConstraint = scrollView.bottomAnchor.constraint(equalTo: statusLabel.topAnchor)
         } else {
@@ -137,7 +137,7 @@ class EditorViewController: NSViewController {
         textStorage.beginEditing()
         textStorage.enumerateAttribute(.font, in: NSRange(location: 0, length: textStorage.length)) { value, range, _ in
             if let currentFont = value as? NSFont {
-                // Preserve traits like bold, italic while changing to new font family
+                
                 let traits = NSFontManager.shared.traits(of: currentFont)
                 let newFont: NSFont
                 if traits.contains(.boldFontMask) && traits.contains(.italicFontMask) {
@@ -154,7 +154,7 @@ class EditorViewController: NSViewController {
                 textStorage.addAttribute(.font, value: baseFont, range: range)
             }
 
-            // Update text color to preference color unless it has special formatting
+            
             if textStorage.attribute(.link, at: range.location, effectiveRange: nil) == nil {
                 textStorage.addAttribute(.foregroundColor, value: textColor, range: range)
             }
@@ -184,13 +184,13 @@ class EditorViewController: NSViewController {
     func displayNote(_ note: Note?) {
         updateTimer?.invalidate()
 
-        // If switching to a different note, clear undo stack
+        
         if currentNote?.id != note?.id {
             textView.undoManager?.removeAllActions()
         }
 
         currentNote = note
-        // Tell NoteManager which note is being edited to prevent reload conflicts
+        
         NoteManager.shared.setCurrentlyEditingNote(note)
 
         if let note = note {
@@ -228,11 +228,11 @@ class EditorViewController: NSViewController {
     private func highlightWikiLinks() {
         guard let textStorage = textView.textStorage, textStorage.length > 0 else { return }
 
-        // Save both scroll position and selection BEFORE any changes
+        
         let scrollPosition = scrollView.contentView.bounds.origin
         let savedSelection = textView.selectedRange()
 
-        // Disable screen updates during attribute changes to prevent flicker
+        
         textView.enclosingScrollView?.contentView.postsBoundsChangedNotifications = false
 
         textStorage.beginEditing()
@@ -260,7 +260,7 @@ class EditorViewController: NSViewController {
                         textStorage.addAttribute(Self.wikiLinkAttribute, value: linkText, range: matchRange)
 
                         if let encodedLinkText = linkText.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) {
-                            let wikiURL = URL(string: "nvsil://wiki/\(encodedLinkText)")
+                            let wikiURL = URL(string: "nvsil:
                             textStorage.addAttribute(.link, value: wikiURL as Any, range: matchRange)
                         }
 
@@ -272,7 +272,7 @@ class EditorViewController: NSViewController {
             }
         }
 
-        // Detect and highlight URLs if preference is enabled
+        
         if Preferences.shared.makeURLsClickableLinks {
             let text = textStorage.string
             if let detector = try? NSDataDetector(types: NSTextCheckingResult.CheckingType.link.rawValue) {
@@ -291,13 +291,13 @@ class EditorViewController: NSViewController {
 
         textStorage.endEditing()
 
-        // Restore scroll position and selection synchronously
+        
         scrollView.contentView.scroll(to: scrollPosition)
         if savedSelection.location + savedSelection.length <= textStorage.length {
             textView.setSelectedRange(savedSelection)
         }
 
-        // Re-enable bounds notifications
+        
         textView.enclosingScrollView?.contentView.postsBoundsChangedNotifications = true
     }
 
@@ -390,13 +390,13 @@ class EditorViewController: NSViewController {
         ]
 
         if selectedRange.length > 0 {
-            // Remove formatting from selected text
+            
             let plainText = textStorage.attributedSubstring(from: selectedRange).string
             let newAttributedString = NSAttributedString(string: plainText, attributes: defaultAttributes)
             textStorage.replaceCharacters(in: selectedRange, with: newAttributedString)
             scheduleFormattingSave()
         } else {
-            // No selection - reset typing attributes for future typing
+            
             textView.typingAttributes = defaultAttributes
         }
     }
@@ -406,11 +406,11 @@ class EditorViewController: NSViewController {
         let selectedRange = textView.selectedRange()
         let string = textStorage.string as NSString
 
-        // Find line range for selection
+        
         let lineRange = string.lineRange(for: selectedRange)
         let lines = string.substring(with: lineRange)
 
-        // Add tab to beginning of each line
+        
         let indentedLines = lines.components(separatedBy: "\n").map { line in
             line.isEmpty ? line : "\t" + line
         }.joined(separator: "\n")
@@ -424,18 +424,18 @@ class EditorViewController: NSViewController {
         let selectedRange = textView.selectedRange()
         let string = textStorage.string as NSString
 
-        // Find line range for selection
+        
         let lineRange = string.lineRange(for: selectedRange)
         let lines = string.substring(with: lineRange)
 
-        // Remove tab or up to 4 spaces from beginning of each line
+        
         let outdentedLines = lines.components(separatedBy: "\n").map { line -> String in
             if line.hasPrefix("\t") {
                 return String(line.dropFirst())
             } else if line.hasPrefix("    ") {
                 return String(line.dropFirst(4))
             } else {
-                // Remove leading spaces up to 4
+                
                 var result = line
                 var spacesRemoved = 0
                 while result.hasPrefix(" ") && spacesRemoved < 4 {
@@ -474,8 +474,8 @@ class EditorViewController: NSViewController {
         } else {
             onContentChanged?(note, textView.string)
         }
-        // Don't call setSelectedRange here - it causes scroll jumpiness
-        // The selection is already maintained by the text view
+        
+        
     }
 
     func clearEditor() {
@@ -487,13 +487,13 @@ class EditorViewController: NSViewController {
     }
 }
 
-// MARK: - NSTextViewDelegate
+
 
 extension EditorViewController: NSTextViewDelegate {
     func textDidChange(_ notification: Notification) {
         updateWordCount()
 
-        // Check for wiki link auto-suggest
+        
         if Preferences.shared.suggestTitlesForNoteLinks {
             checkForWikiLinkPattern()
         }
@@ -501,7 +501,7 @@ extension EditorViewController: NSTextViewDelegate {
         updateTimer?.invalidate()
         updateTimer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: false) { [weak self] _ in
             self?.saveCurrentContent()
-            // Highlight wiki links or URLs if enabled
+            
             if self?.textView.string.contains("[[") == true || Preferences.shared.makeURLsClickableLinks {
                 self?.highlightWikiLinks()
             }
@@ -517,29 +517,29 @@ extension EditorViewController: NSTextViewDelegate {
             return
         }
 
-        // Find the start of the wiki link pattern before cursor
+        
         let textBeforeCursor = String(text.prefix(cursorLocation))
 
-        // Look for [[ that doesn't have a closing ]]
+        
         if let openBracketRange = textBeforeCursor.range(of: "[[", options: .backwards) {
             let afterOpenBracket = textBeforeCursor[openBracketRange.upperBound...]
 
-            // Check if there's already a closing ]] between [[ and cursor
+            
             if afterOpenBracket.contains("]]") {
                 hideSuggestionPopup()
                 return
             }
 
-            // Get the partial text after [[
+            
             let partialTitle = String(afterOpenBracket)
 
-            // Get suggestions - prefer prefix matches, then contains matches
+            
             var suggestions: [String]
             if partialTitle.isEmpty {
-                // Show all note titles when just [[ is typed
+                
                 suggestions = NoteManager.shared.allNoteTitles
             } else {
-                // First get prefix matches, then contains matches
+                
                 let prefixMatches = NoteManager.shared.notesMatchingTitlePrefix(partialTitle).map { $0.title }
                 let containsMatches = NoteManager.shared.notesContainingTitle(partialTitle)
                     .map { $0.title }
@@ -547,11 +547,11 @@ extension EditorViewController: NSTextViewDelegate {
                 suggestions = prefixMatches + containsMatches
             }
 
-            // Limit suggestions
+            
             suggestions = Array(suggestions.prefix(15))
 
             if !suggestions.isEmpty {
-                // Calculate the NSRange for the [[ pattern
+                
                 let startIndex = textBeforeCursor.distance(from: textBeforeCursor.startIndex, to: openBracketRange.lowerBound)
                 wikiLinkRange = NSRange(location: startIndex, length: cursorLocation - startIndex)
                 showSuggestionPopup(suggestions: suggestions)
@@ -571,23 +571,23 @@ extension EditorViewController: NSTextViewDelegate {
             suggestionPopup?.delegate = self
         }
 
-        // Get cursor position - firstRect returns screen coordinates
+        
         let cursorRect = textView.firstRect(forCharacterRange: textView.selectedRange(), actualRange: nil)
 
-        // Use screen coordinates directly since SuggestionPopupController expects them
+        
         var screenPoint: NSPoint
 
         if cursorRect.origin.x != 0 || cursorRect.origin.y != 0 {
-            // firstRect returned valid screen coordinates
+            
             screenPoint = cursorRect.origin
         } else {
-            // Fallback: calculate position from layout manager
+            
             let layoutManager = textView.layoutManager!
             let cursorLocation = max(0, textView.selectedRange().location)
             let glyphIndex = layoutManager.glyphIndexForCharacter(at: cursorLocation)
             let lineRect = layoutManager.lineFragmentRect(forGlyphAt: glyphIndex, effectiveRange: nil)
 
-            // Convert to window coordinates, then to screen
+            
             let textViewRect = textView.convert(lineRect, to: nil)
             let windowRect = window.convertToScreen(textViewRect)
             screenPoint = NSPoint(x: windowRect.origin.x + 20, y: windowRect.origin.y)
@@ -605,19 +605,19 @@ extension EditorViewController: NSTextViewDelegate {
         guard suggestionPopup?.isVisible == true else { return false }
 
         switch event.keyCode {
-        case 125: // Down arrow
+        case 125: 
             suggestionPopup?.moveSelectionDown()
             return true
-        case 126: // Up arrow
+        case 126: 
             suggestionPopup?.moveSelectionUp()
             return true
-        case 36: // Return
+        case 36: 
             suggestionPopup?.confirmSelection()
             return true
-        case 53: // Escape
+        case 53: 
             suggestionPopup?.cancel()
             return true
-        case 48: // Tab
+        case 48: 
             suggestionPopup?.confirmSelection()
             return true
         default:
@@ -633,11 +633,11 @@ extension EditorViewController: NSTextViewDelegate {
             }
         }
 
-        // Auto-pair brackets and quotes
+        
         if Preferences.shared.autoPairCharacters,
            let replacement = replacementString,
            replacement.count == 1,
-           affectedCharRange.length == 0 { // Only when inserting (not replacing)
+           affectedCharRange.length == 0 { 
             let pairMap: [String: String] = [
                 "(": ")",
                 "[": "]",
@@ -647,7 +647,7 @@ extension EditorViewController: NSTextViewDelegate {
             ]
 
             if let closingChar = pairMap[replacement] {
-                // Insert the pair and position cursor in between
+                
                 let paired = replacement + closingChar
                 let attributes = textView.typingAttributes
                 let attributedString = NSAttributedString(string: paired, attributes: attributes)
@@ -655,10 +655,10 @@ extension EditorViewController: NSTextViewDelegate {
                 if textView.shouldChangeText(in: affectedCharRange, replacementString: paired) {
                     textView.textStorage?.replaceCharacters(in: affectedCharRange, with: attributedString)
                     textView.didChangeText()
-                    // Position cursor after the opening character
+                    
                     textView.setSelectedRange(NSRange(location: affectedCharRange.location + 1, length: 0))
                 }
-                return false // We handled the insertion ourselves
+                return false 
             }
         }
 
@@ -715,29 +715,29 @@ extension EditorViewController: NSTextViewDelegate {
     }
 }
 
-// MARK: - SimpleRichTextView
+
 
 class SimpleRichTextView: NSTextView {
     weak var editorController: EditorViewController?
 
     override func keyDown(with event: NSEvent) {
-        // Forward key events to editor controller for suggestion popup handling
+        
         if let editor = editorController, editor.handleKeyDown(event) {
             return
         }
 
-        // Handle Tab key based on preference
-        if event.keyCode == 48 { // Tab
+        
+        if event.keyCode == 48 { 
             if event.modifierFlags.contains(.shift) {
-                // Shift+Tab always outdents
+                
                 editorController?.outdentText(nil)
                 return
             } else if Preferences.shared.tabKeyIndentsLines {
-                // Tab indents lines when preference is enabled
+                
                 editorController?.indentText(nil)
                 return
             }
-            // Otherwise, let Tab insert a tab character normally
+            
         }
 
         super.keyDown(with: event)
@@ -807,7 +807,7 @@ class SimpleRichTextView: NSTextView {
     }
 }
 
-// MARK: - SuggestionPopupDelegate
+
 
 extension EditorViewController: SuggestionPopupDelegate {
     func suggestionPopup(_ popup: SuggestionPopupController, didSelectSuggestion suggestion: String) {
@@ -816,7 +816,7 @@ extension EditorViewController: SuggestionPopupDelegate {
             return
         }
 
-        // Replace [[ + partial text with [[suggestion]]
+        
         let replacement = "[[\(suggestion)]]"
         let attributes: [NSAttributedString.Key: Any] = [
             .font: Preferences.shared.bodyFont,
@@ -828,11 +828,11 @@ extension EditorViewController: SuggestionPopupDelegate {
             textStorage.replaceCharacters(in: range, with: attributedReplacement)
             textView.didChangeText()
 
-            // Position cursor after the ]]
+            
             let newCursorPosition = range.location + replacement.count
             textView.setSelectedRange(NSRange(location: newCursorPosition, length: 0))
 
-            // Trigger wiki link highlighting
+            
             highlightWikiLinks()
         }
 

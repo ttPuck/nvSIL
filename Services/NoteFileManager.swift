@@ -36,7 +36,7 @@ class NoteFileManager {
 
     func writeNote(_ note: Note) throws {
         do {
-            // Save pin state before writing (atomic write may lose xattrs)
+            
             let wasPinned = note.isPinned
 
             if let data = note.content.data(using: .utf8) {
@@ -49,7 +49,7 @@ class NoteFileManager {
             try FileManager.default.setAttributes([.modificationDate: now], ofItemAtPath: note.fileURL.path)
             try writeTags(note.tags, to: note.fileURL)
 
-            // Restore pin state after atomic write (which may have lost xattrs)
+            
             if wasPinned {
                 try writePinnedState(true, to: note.fileURL)
             }
@@ -111,7 +111,7 @@ class NoteFileManager {
             newURL = directory.appendingPathComponent(uniqueFilename)
         }
 
-        // Read extended attributes BEFORE file operations (they may be lost during move/write)
+        
         let tags = readTags(from: note.fileURL)
         let wasPinned = readPinnedState(from: note.fileURL)
 
@@ -138,7 +138,7 @@ class NoteFileManager {
             try fullContent.write(to: newURL, atomically: true, encoding: .utf8)
         }
 
-        // Restore extended attributes after atomic write
+        
         try writeTags(tags, to: newURL)
         if wasPinned {
             try writePinnedState(true, to: newURL)
@@ -209,7 +209,7 @@ class NoteFileManager {
     }
 }
 
-// MARK: - URL Extended Attributes
+
 
 extension URL {
     func extendedAttribute(forName name: String) throws -> Data {

@@ -1,7 +1,7 @@
 import Cocoa
 import Carbon
 
-// Global function for Carbon callback - must be outside the class
+
 private func hotkeyCallback(
     nextHandler: EventHandlerCallRef?,
     theEvent: EventRef?,
@@ -21,7 +21,7 @@ class HotkeyManager {
         setupEventHandler()
         registerHotkey()
 
-        // Listen for preference changes
+        
         NotificationCenter.default.addObserver(
             self,
             selector: #selector(preferencesDidChange),
@@ -40,7 +40,7 @@ class HotkeyManager {
             eventKind: UInt32(kEventHotKeyPressed)
         )
 
-        // Use GetEventDispatcherTarget for system-wide hotkey handling
+        
         let status = InstallEventHandler(
             GetEventDispatcherTarget(),
             hotkeyCallback,
@@ -56,7 +56,7 @@ class HotkeyManager {
     }
 
     func registerHotkey() {
-        // Unregister existing hotkey
+        
         if let hotkeyRef = hotkeyRef {
             UnregisterEventHotKey(hotkeyRef)
             self.hotkeyRef = nil
@@ -65,14 +65,14 @@ class HotkeyManager {
         let hotkeyString = Preferences.shared.bringToFrontHotkey
         guard !hotkeyString.isEmpty, hotkeyString != "None" else { return }
 
-        // Parse the hotkey string
+        
         guard let (modifiers, keyCode) = parseHotkeyString(hotkeyString) else {
             print("Failed to parse hotkey string: \(hotkeyString)")
             return
         }
 
-        // Register the hotkey with GetEventDispatcherTarget for global scope
-        let hotkeyID = EventHotKeyID(signature: OSType(0x4E5653), id: 1) // "NVS\0"
+        
+        let hotkeyID = EventHotKeyID(signature: OSType(0x4E5653), id: 1) 
         var newHotkeyRef: EventHotKeyRef?
 
         let status = RegisterEventHotKey(
@@ -122,7 +122,7 @@ class HotkeyManager {
             "9": 0x19, "0": 0x1D,
             "=": 0x18, "-": 0x1B, "[": 0x21, "]": 0x1E, "'": 0x27, ";": 0x29, "\\": 0x2A, ",": 0x2B,
             "/": 0x2C, ".": 0x2F, "`": 0x32,
-            " ": 0x31 // Space
+            " ": 0x31 
         ]
 
         let upperChar = Character(char.uppercased())

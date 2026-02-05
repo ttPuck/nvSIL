@@ -23,10 +23,7 @@ class TagContainerView: NSView, NSTextFieldDelegate, SuggestionPopupDelegate {
     private var isRowSelected: Bool = false
     private weak var externalDelegate: NSTextFieldDelegate?
 
-    // Callback when a tag is clicked
     var onTagClicked: ((String) -> Void)?
-
-    // Tag auto-suggest
     private var suggestionPopup: SuggestionPopupController?
 
     override init(frame frameRect: NSRect) {
@@ -47,7 +44,6 @@ class TagContainerView: NSView, NSTextFieldDelegate, SuggestionPopupDelegate {
         stackView.translatesAutoresizingMaskIntoConstraints = false
         addSubview(stackView)
 
-        // Hidden edit field //
         editField = NSTextField()
         editField.isBordered = false
         editField.font = NSFont.systemFont(ofSize: 10)
@@ -156,7 +152,7 @@ class TagContainerView: NSView, NSTextFieldDelegate, SuggestionPopupDelegate {
         }
     }
 
-    // MARK: - NSTextFieldDelegate
+    
 
     func controlTextDidChange(_ obj: Notification) {
         checkForTagSuggestions()
@@ -164,7 +160,7 @@ class TagContainerView: NSView, NSTextFieldDelegate, SuggestionPopupDelegate {
 
     func controlTextDidEndEditing(_ obj: Notification) {
         hideSuggestionPopup()
-        // Forward to external delegate
+        
         externalDelegate?.controlTextDidEndEditing?(obj)
     }
 
@@ -190,12 +186,12 @@ class TagContainerView: NSView, NSTextFieldDelegate, SuggestionPopupDelegate {
         return false
     }
 
-    // MARK: - Tag Auto-Suggest
+    
 
     private func checkForTagSuggestions() {
         let text = editField.stringValue
 
-        // Get the current partial tag (after the last comma)
+        
         let components = text.split(separator: ",", omittingEmptySubsequences: false)
         guard let lastComponent = components.last else {
             hideSuggestionPopup()
@@ -209,15 +205,15 @@ class TagContainerView: NSView, NSTextFieldDelegate, SuggestionPopupDelegate {
             return
         }
 
-        // Get all unique tags and filter
+        
         let allTags = NoteManager.shared.allUniqueTags
 
-        // Get tags already entered in the field
+        
         let enteredTags = Set(text.split(separator: ",")
             .map { $0.trimmingCharacters(in: .whitespaces).lowercased() }
             .filter { !$0.isEmpty })
 
-        // Filter suggestions: prefix match first, then contains
+        
         var suggestions = allTags
             .filter { $0.hasPrefix(partialTag) && !enteredTags.contains($0) }
             .sorted()
@@ -245,7 +241,7 @@ class TagContainerView: NSView, NSTextFieldDelegate, SuggestionPopupDelegate {
             suggestionPopup?.delegate = self
         }
 
-        // Position popup below the edit field
+        
         let fieldRect = editField.convert(editField.bounds, to: nil)
         let windowRect = window.convertToScreen(fieldRect)
         let point = NSPoint(x: windowRect.origin.x, y: windowRect.origin.y)
@@ -257,17 +253,17 @@ class TagContainerView: NSView, NSTextFieldDelegate, SuggestionPopupDelegate {
         suggestionPopup?.hide()
     }
 
-    // MARK: - SuggestionPopupDelegate
+    
 
     func suggestionPopup(_ popup: SuggestionPopupController, didSelectSuggestion suggestion: String) {
         let text = editField.stringValue
 
-        // Replace the partial tag with the selected suggestion
+        
         var components = text.split(separator: ",", omittingEmptySubsequences: false)
             .map { String($0) }
 
         if !components.isEmpty {
-            // Remove the last partial component and add the suggestion
+            
             components.removeLast()
             if components.isEmpty {
                 editField.stringValue = suggestion + ", "
@@ -279,14 +275,14 @@ class TagContainerView: NSView, NSTextFieldDelegate, SuggestionPopupDelegate {
             editField.stringValue = suggestion + ", "
         }
 
-        // Put cursor at the end
+        
         if let fieldEditor = window?.fieldEditor(false, for: editField) as? NSTextView {
             fieldEditor.setSelectedRange(NSRange(location: editField.stringValue.count, length: 0))
         }
     }
 
     func suggestionPopupDidCancel(_ popup: SuggestionPopupController) {
-        // Nothing to do
+        
     }
 }
 
@@ -347,7 +343,7 @@ class ColoredHeaderCell: NSTableHeaderCell {
     var customTextColor: NSColor = .black
     var gradientStartColor: NSColor = NSColor(calibratedWhite: 0.95, alpha: 1.0)
     var gradientEndColor: NSColor = NSColor(calibratedWhite: 0.82, alpha: 1.0)
-    var columnIdentifier: String = ""  // Set during column setup
+    var columnIdentifier: String = ""  
 
     enum SortIndicator {
         case none
@@ -355,7 +351,7 @@ class ColoredHeaderCell: NSTableHeaderCell {
         case descending
     }
 
-    // NSTableView may copy header cells internally, so preserve our custom properties
+    
     override func copy(with zone: NSZone? = nil) -> Any {
         let copy = super.copy(with: zone) as! ColoredHeaderCell
         copy.customTextColor = customTextColor
@@ -365,7 +361,7 @@ class ColoredHeaderCell: NSTableHeaderCell {
         return copy
     }
 
-    // Dynamically determine sort indicator based on current table state
+    
     private func currentSortIndicator(in controlView: NSView) -> SortIndicator {
         guard let headerView = controlView as? NSTableHeaderView,
               let tableView = headerView.tableView else {
@@ -377,7 +373,7 @@ class ColoredHeaderCell: NSTableHeaderCell {
             return .none
         }
 
-        // Map cell's stringValue to sort key (more reliable than stored identifier)
+        
         let expectedKey: String?
         let cellTitle = stringValue.lowercased()
         if cellTitle.contains("title") {
@@ -412,7 +408,7 @@ class ColoredHeaderCell: NSTableHeaderCell {
         borderPath.line(to: NSPoint(x: cellFrame.maxX - 0.5, y: cellFrame.maxY))
         borderPath.stroke()
 
-        // Get sort indicator dynamically based on column identifier
+        
         let sortIndicator = currentSortIndicator(in: controlView)
 
         let indicatorWidth: CGFloat = sortIndicator != .none ? 16 : 0
@@ -440,12 +436,12 @@ class ColoredHeaderCell: NSTableHeaderCell {
     }
 }
 
-// Custom NSTableView that forwards delete key to delegate
+
 class NoteTableView: NSTableView {
     var onDeleteKeyPressed: (() -> Void)?
 
     override func keyDown(with event: NSEvent) {
-        // Handle Cmd+Delete (backspace) - keyCode 51
+        
         if event.modifierFlags.contains(.command) && event.keyCode == 51 {
             onDeleteKeyPressed?()
             return
@@ -484,7 +480,7 @@ class NoteListViewController: NSViewController, NSWindowDelegate {
     var onTagClicked: ((String) -> Void)?
 
     override func loadView() {
-        // Create main container view //
+        
         containerView = NSView(frame: NSRect(x: 0, y: 0, width: 800, height: 300))
 
         scrollView = NSScrollView()
@@ -497,7 +493,7 @@ class NoteListViewController: NSViewController, NSWindowDelegate {
         scrollView.backgroundColor = .white
         scrollView.verticalScroller?.knobStyle = .dark
         
-        // Create table view //
+        
         tableView = NoteTableView()
         tableView.onDeleteKeyPressed = { [weak self] in
             self?.deleteSelectedNote()
@@ -509,7 +505,7 @@ class NoteListViewController: NSViewController, NSWindowDelegate {
         tableView.intercellSpacing = NSSize(width: 3, height: 2)
         tableView.columnAutoresizingStyle = .noColumnAutoresizing
         
-        // Create Title column (resizable) //
+        
         let titleColumn = NSTableColumn(identifier: NSUserInterfaceItemIdentifier("TitleColumn"))
         titleColumn.title = "Title"
         titleColumn.width = 300
@@ -564,7 +560,7 @@ class NoteListViewController: NSViewController, NSWindowDelegate {
         
         scrollView.documentView = tableView
         
-        // Create status label //
+        
         statusLabel = NSTextField(labelWithString: "0 notes")
         statusLabel.translatesAutoresizingMaskIntoConstraints = false
         statusLabel.font = NSFont.systemFont(ofSize: 10)
@@ -575,7 +571,7 @@ class NoteListViewController: NSViewController, NSWindowDelegate {
         containerView.addSubview(scrollView)
         containerView.addSubview(statusLabel)
 
-        // Set up constraints
+        
         NSLayoutConstraint.activate([
             scrollView.topAnchor.constraint(equalTo: containerView.topAnchor),
             scrollView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor),
@@ -587,7 +583,7 @@ class NoteListViewController: NSViewController, NSWindowDelegate {
             statusLabel.heightAnchor.constraint(equalToConstant: 20)
         ])
 
-        // Initial bottom constraint for scrollView (will be updated in viewDidLoad)
+        
         scrollViewBottomConstraint = scrollView.bottomAnchor.constraint(equalTo: statusLabel.topAnchor)
         scrollViewBottomConstraint?.isActive = true
 
@@ -655,7 +651,7 @@ class NoteListViewController: NSViewController, NSWindowDelegate {
 
         tableView.usesAlternatingRowBackgroundColors = prefs.alternatingRowColors
 
-        // Update status bar visibility
+        
         let shouldShowStatusBar = prefs.showNoteListStatusBar
         if shouldShowStatusBar != statusBarVisible {
             statusBarVisible = shouldShowStatusBar
@@ -666,10 +662,10 @@ class NoteListViewController: NSViewController, NSWindowDelegate {
     private func updateStatusBarLayout() {
         statusLabel.isHidden = !statusBarVisible
 
-        // Remove old constraint
+        
         scrollViewBottomConstraint?.isActive = false
 
-        // Create new constraint
+        
         if statusBarVisible {
             scrollViewBottomConstraint = scrollView.bottomAnchor.constraint(equalTo: statusLabel.topAnchor)
         } else {
@@ -700,7 +696,7 @@ class NoteListViewController: NSViewController, NSWindowDelegate {
             object: tableView.enclosingScrollView
         )
 
-        // Observe selection changes during mouse tracking to fix text color flashing
+        
         NotificationCenter.default.addObserver(
             self,
             selector: #selector(selectionIsChanging(_:)),
@@ -710,7 +706,7 @@ class NoteListViewController: NSViewController, NSWindowDelegate {
     }
 
     @objc private func selectionIsChanging(_ notification: Notification) {
-        // Update text colors immediately during selection change
+        
         let visibleRows = tableView.rows(in: tableView.visibleRect)
         for row in visibleRows.lowerBound..<visibleRows.upperBound {
             updateTextColorsForRow(row)
@@ -720,19 +716,19 @@ class NoteListViewController: NSViewController, NSWindowDelegate {
     private func updateTextColorsForRow(_ row: Int) {
         guard row >= 0 && row < filteredNotes.count else { return }
 
-        // Check the actual row view's visual state, not just selection
+        
         let rowView = tableView.rowView(atRow: row, makeIfNecessary: false)
         let isEmphasized = rowView?.isEmphasized ?? false
         let isRowSelected = rowView?.isSelected ?? tableView.selectedRowIndexes.contains(row)
         let shouldUseWhiteText = isRowSelected && isEmphasized
 
-        // Update title column
+        
         if let titleColumnIndex = tableView.tableColumns.firstIndex(where: { $0.identifier.rawValue == "TitleColumn" }),
            let textField = tableView.view(atColumn: titleColumnIndex, row: row, makeIfNecessary: false) as? NSTextField {
             textField.textColor = shouldUseWhiteText ? .white : .black
         }
 
-        // Update date column
+        
         if let dateColumnIndex = tableView.tableColumns.firstIndex(where: { $0.identifier.rawValue == "DateColumn" }),
            let textField = tableView.view(atColumn: dateColumnIndex, row: row, makeIfNecessary: false) as? NSTextField {
             textField.textColor = shouldUseWhiteText ? .white : .darkGray
@@ -846,46 +842,46 @@ class NoteListViewController: NSViewController, NSWindowDelegate {
     private func setupContextMenu() {
         let menu = NSMenu()
         
-        // Rename //
+        
         let renameItem = NSMenuItem(title: "Rename", action: #selector(renameNote(_:)), keyEquivalent: "r")
         renameItem.keyEquivalentModifierMask = [.command]
         menu.addItem(renameItem)
         
-        // Tag //
+        
         let tagItem = NSMenuItem(title: "Tag", action: #selector(editTags(_:)), keyEquivalent: "t")
         tagItem.keyEquivalentModifierMask = [.command, .shift]
         menu.addItem(tagItem)
         
-        // Delete //
-        let deleteItem = NSMenuItem(title: "Delete...", action: #selector(deleteNote(_:)), keyEquivalent: "\u{8}") // backspace
+        
+        let deleteItem = NSMenuItem(title: "Delete...", action: #selector(deleteNote(_:)), keyEquivalent: "\u{8}") 
         deleteItem.keyEquivalentModifierMask = [.command]
         menu.addItem(deleteItem)
 
         menu.addItem(NSMenuItem.separator())
 
-        // Pin/Unpin //
+        
         let pinItem = NSMenuItem(title: "Pin/Unpin Note", action: #selector(togglePinNote(_:)), keyEquivalent: "p")
         pinItem.keyEquivalentModifierMask = [.command, .shift]
         menu.addItem(pinItem)
 
         menu.addItem(NSMenuItem.separator())
         
-        // Copy URL //
+        
         let copyURLItem = NSMenuItem(title: "Copy URL", action: #selector(copyNoteURL(_:)), keyEquivalent: "c")
         copyURLItem.keyEquivalentModifierMask = [.command, .option]
         menu.addItem(copyURLItem)
         
-        // Export //
+        
         let exportItem = NSMenuItem(title: "Export...", action: #selector(exportNote(_:)), keyEquivalent: "e")
         exportItem.keyEquivalentModifierMask = [.command]
         menu.addItem(exportItem)
         
-        // Show in Finder //
+        
         let showInFinderItem = NSMenuItem(title: "Show in Finder", action: #selector(showInFinder(_:)), keyEquivalent: "r")
         showInFinderItem.keyEquivalentModifierMask = [.command, .shift]
         menu.addItem(showInFinderItem)
         
-        // Edit With submenu //
+        
         let editWithItem = NSMenuItem(title: "Edit With", action: nil, keyEquivalent: "")
         let editWithSubmenu = NSMenu()
         editWithSubmenu.addItem(NSMenuItem(title: "Default Editor", action: #selector(openWithDefaultEditor(_:)), keyEquivalent: ""))
@@ -897,7 +893,7 @@ class NoteListViewController: NSViewController, NSWindowDelegate {
         
         menu.addItem(NSMenuItem.separator())
         
-        // Print //
+        
         let printItem = NSMenuItem(title: "Print...", action: #selector(printNote(_:)), keyEquivalent: "p")
         printItem.keyEquivalentModifierMask = [.command]
         menu.addItem(printItem)
@@ -917,10 +913,10 @@ class NoteListViewController: NSViewController, NSWindowDelegate {
         let clickedRow = tableView.clickedRow
         guard clickedRow >= 0 && clickedRow < filteredNotes.count else { return }
 
-        // Select the row first
+        
         tableView.selectRowIndexes(IndexSet(integer: clickedRow), byExtendingSelection: false)
 
-        // Start inline editing
+        
         editingTitleRow = clickedRow
 
         if let titleColumnIndex = tableView.tableColumns.firstIndex(where: { $0.identifier.rawValue == "TitleColumn" }),
@@ -954,7 +950,7 @@ class NoteListViewController: NSViewController, NSWindowDelegate {
     @objc private func deleteNote(_ sender: Any?) {
         guard let note = clickedNote() else { return }
         
-        // Show confirmation dialog //
+        
         let alert = NSAlert()
         alert.messageText = "Delete Note"
         alert.informativeText = "Are you sure you want to delete \"\(note.title)\"? This cannot be undone."
@@ -972,7 +968,7 @@ class NoteListViewController: NSViewController, NSWindowDelegate {
 
         let pasteboard = NSPasteboard.general
         pasteboard.clearContents()
-        // Copy the directory path (notes folder) instead of the file URL
+        
         let directoryURL = note.fileURL.deletingLastPathComponent()
         pasteboard.setString(directoryURL.path, forType: .string)
     }
@@ -1049,7 +1045,7 @@ class NoteListViewController: NSViewController, NSWindowDelegate {
             ])
         }
         
-        // Create a text view for printing //
+        
         let printInfo = NSPrintInfo.shared.copy() as! NSPrintInfo
         printInfo.horizontalPagination = .fit
         printInfo.verticalPagination = .automatic
@@ -1125,7 +1121,7 @@ class NoteListViewController: NSViewController, NSWindowDelegate {
         onNoteSelected?(filteredNotes[prevRow])
     }
 
-    // MARK: - Inline Editing
+    
 
     func startEditingTagsForSelectedNote() {
         let row = tableView.selectedRow
@@ -1213,8 +1209,8 @@ class NoteListViewController: NSViewController, NSWindowDelegate {
     }
     
     private func updateSortIndicators() {
-        // Header cells now determine their sort indicator dynamically during draw,
-        // so we just need to trigger a redraw of the header view
+        
+        
         if let headerView = tableView.headerView {
             headerView.needsDisplay = true
             headerView.display()
@@ -1235,7 +1231,7 @@ extension NoteListViewController: NSTableViewDelegate {
         let note = filteredNotes[row]
         let identifier = column.identifier
 
-        // Check actual row view state for proper text coloring
+        
         let rowView = tableView.rowView(atRow: row, makeIfNecessary: false)
         let isEmphasized = rowView?.isEmphasized ?? true
         let isRowSelected = rowView?.isSelected ?? tableView.selectedRowIndexes.contains(row)
@@ -1261,7 +1257,7 @@ extension NoteListViewController: NSTableViewDelegate {
             let pinPrefix = note.isPinned ? "📌 " : ""
             let fullTitle = pinPrefix + displayTitle
 
-            // Apply search highlighting if enabled and there's a search query
+            
             if Preferences.shared.enableSearchHighlight && !currentSearchQuery.isEmpty && !isSelected {
                 let attributedTitle = NSMutableAttributedString(string: fullTitle)
                 let baseAttrs: [NSAttributedString.Key: Any] = [
@@ -1270,7 +1266,7 @@ extension NoteListViewController: NSTableViewDelegate {
                 ]
                 attributedTitle.addAttributes(baseAttrs, range: NSRange(location: 0, length: attributedTitle.length))
 
-                // Find and highlight all occurrences of the search query
+                
                 let searchLower = currentSearchQuery.lowercased()
                 let titleLower = fullTitle.lowercased()
                 var searchStart = titleLower.startIndex
@@ -1345,7 +1341,7 @@ extension NoteListViewController: NSTableViewDelegate {
         onNoteSelected?(selectedNote)
     }
 
-    // Helper function for custom string sorting with special characters
+    
     private func customCompare(_ string1: String, _ string2: String, ascending: Bool) -> Bool {
         let char1 = string1.first
         let char2 = string2.first
@@ -1353,28 +1349,28 @@ extension NoteListViewController: NSTableViewDelegate {
         let isAlphanumeric1 = char1?.isLetter == true || char1?.isNumber == true
         let isAlphanumeric2 = char2?.isLetter == true || char2?.isNumber == true
 
-        // If one starts with alphanumeric and the other with special character
+        
         if isAlphanumeric1 != isAlphanumeric2 {
             if ascending {
-                // Ascending: special characters first (return true if string2 is alphanumeric)
+                
                 return isAlphanumeric2
             } else {
-                // Descending: alphanumeric first (return true if string1 is alphanumeric)
+                
                 return isAlphanumeric1
             }
         }
 
-        // Both are same type (both alphanumeric or both special), use standard comparison
+        
         let result = string1.localizedCaseInsensitiveCompare(string2)
         return ascending ? result == .orderedAscending : result == .orderedDescending
     }
 
-    // Apply the current sort to filteredNotes
+    
     private func applySortIfNeeded() {
         guard tableView != nil,
               let sortDescriptor = tableView.sortDescriptors.first,
               let key = sortDescriptor.key else {
-            // Default sort: pinned first, then by date modified
+            
             filteredNotes.sort { note1, note2 in
                 if note1.isPinned != note2.isPinned {
                     return note1.isPinned
@@ -1386,14 +1382,14 @@ extension NoteListViewController: NSTableViewDelegate {
 
         let ascending = sortDescriptor.ascending
 
-        // Sort with pinned notes always first
+        
         filteredNotes.sort { note1, note2 in
-            // Pinned notes always come first
+            
             if note1.isPinned != note2.isPinned {
                 return note1.isPinned
             }
 
-            // Then apply the selected sort
+            
             switch key {
             case "title":
                 return customCompare(note1.title, note2.title, ascending: ascending)
@@ -1413,7 +1409,7 @@ extension NoteListViewController: NSTableViewDelegate {
         applySortIfNeeded()
         tableView.reloadData()
 
-        // Update sort indicators AFTER reloadData to ensure they're not reset
+        
         updateSortIndicators()
     }
     
@@ -1429,12 +1425,12 @@ extension NoteListViewController: NSTextFieldDelegate {
     func controlTextDidEndEditing(_ obj: Notification) {
         guard let textField = obj.object as? NSTextField else { return }
 
-        // Check if this is title editing
+        
         if editingTitleRow >= 0 && editingTitleRow < filteredNotes.count {
             let note = filteredNotes[editingTitleRow]
             let newTitle = textField.stringValue.trimmingCharacters(in: .whitespaces)
 
-            // Reset the text field appearance
+            
             textField.isEditable = false
             textField.isBordered = false
             textField.drawsBackground = false
@@ -1444,7 +1440,7 @@ extension NoteListViewController: NSTextFieldDelegate {
                 do {
                     try NoteManager.shared.renameNote(note, to: newTitle)
                 } catch {
-                    // Revert to old title on error
+                    
                     textField.stringValue = note.title
                 }
             }
@@ -1453,7 +1449,7 @@ extension NoteListViewController: NSTextFieldDelegate {
             return
         }
 
-        // Otherwise, this is tag editing
+        
         let row = textField.tag
         guard row >= 0 && row < filteredNotes.count else { return }
 
@@ -1479,7 +1475,7 @@ extension NoteListViewController: NSTextFieldDelegate {
         }
     }
 
-    // MARK: - Keyboard Handling
+    
 
     private func deleteSelectedNote() {
         guard let note = selectedNote else { return }
