@@ -35,6 +35,8 @@ class Preferences {
         static let alwaysShowGridLines = "alwaysShowGridLines"
         static let alternatingRowColors = "alternatingRowColors"
         static let keepNoteBodyWidthReadable = "keepNoteBodyWidthReadable"
+        static let showEditorStatusBar = "showEditorStatusBar"
+        static let showNoteListStatusBar = "showNoteListStatusBar"
         static let splitViewDividerPosition = "splitViewDividerPosition"
         static let titleColumnProportion = "titleColumnProportion"
         static let tagsColumnProportion = "tagsColumnProportion"
@@ -385,6 +387,28 @@ class Preferences {
         }
     }
 
+    var showEditorStatusBar: Bool {
+        get {
+            if defaults.object(forKey: Keys.showEditorStatusBar) == nil { return true }
+            return defaults.bool(forKey: Keys.showEditorStatusBar)
+        }
+        set {
+            defaults.set(newValue, forKey: Keys.showEditorStatusBar)
+            NotificationCenter.default.post(name: .preferencesDidChange, object: self)
+        }
+    }
+
+    var showNoteListStatusBar: Bool {
+        get {
+            if defaults.object(forKey: Keys.showNoteListStatusBar) == nil { return true }
+            return defaults.bool(forKey: Keys.showNoteListStatusBar)
+        }
+        set {
+            defaults.set(newValue, forKey: Keys.showNoteListStatusBar)
+            NotificationCenter.default.post(name: .preferencesDidChange, object: self)
+        }
+    }
+
     // MARK: - UI State
 
     var splitViewDividerPosition: CGFloat {
@@ -458,7 +482,9 @@ class Preferences {
             Keys.enableSearchHighlight: true,
             Keys.alwaysShowGridLines: true,
             Keys.alternatingRowColors: true,
-            Keys.keepNoteBodyWidthReadable: false
+            Keys.keepNoteBodyWidthReadable: false,
+            Keys.showEditorStatusBar: true,
+            Keys.showNoteListStatusBar: true
         ])
     }
 }

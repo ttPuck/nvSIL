@@ -52,74 +52,86 @@ class PreferencesWindowController: NSWindowController {
 
         let view = NSView(frame: NSRect(x: 0, y: 0, width: 460, height: 440))
 
-        var yPos: CGFloat = 390
+        var yPos: CGFloat = 400
 
-      
-        let listSizeLabel = createLabel("List Text Size:", at: NSPoint(x: 100, y: yPos), alignment: .right, width: 140)
+        let listSizeLabel = createLabel("List Text Size:", at: NSPoint(x: 50, y: yPos), alignment: .left, width: 140)
         view.addSubview(listSizeLabel)
 
-        let listSizePopup = NSPopUpButton(frame: NSRect(x: 250, y: yPos - 2, width: 120, height: 26), pullsDown: false)
+        let listSizePopup = NSPopUpButton(frame: NSRect(x: 200, y: yPos - 2, width: 120, height: 26), pullsDown: false)
         listSizePopup.addItems(withTitles: Preferences.ListTextSize.allCases.map { $0.rawValue })
         listSizePopup.selectItem(withTitle: Preferences.shared.listTextSize.rawValue)
         listSizePopup.target = self
         listSizePopup.action = #selector(listTextSizeChanged(_:))
         view.addSubview(listSizePopup)
 
-        yPos -= 50
+        yPos -= 45
 
-        let hotkeyLabel = createLabel("Bring-to-Front Hotkey:", at: NSPoint(x: 60, y: yPos), alignment: .right, width: 180)
+        let hotkeyLabel = createLabel("Bring-to-Front Hotkey:", at: NSPoint(x: 50, y: yPos), alignment: .left, width: 180)
         view.addSubview(hotkeyLabel)
 
-        let hotkeyRecorder = KeyRecorderView(frame: NSRect(x: 250, y: yPos - 2, width: 170, height: 24))
+        let hotkeyRecorder = KeyRecorderView(frame: NSRect(x: 200, y: yPos - 2, width: 170, height: 24))
         hotkeyRecorder.keyCombo = Preferences.shared.bringToFrontHotkey
         hotkeyRecorder.onKeyComboChanged = { newCombo in
             Preferences.shared.bringToFrontHotkey = newCombo
         }
         view.addSubview(hotkeyRecorder)
 
-        yPos -= 55
-
+        yPos -= 50
 
         let autoSelectCheck = NSButton(checkboxWithTitle: "Auto-select notes by title when searching", target: self, action: #selector(autoSelectChanged(_:)))
-        autoSelectCheck.frame = NSRect(x: 50, y: yPos, width: 350, height: 20)
+        autoSelectCheck.frame = NSRect(x: 50, y: yPos, width: 380, height: 20)
         autoSelectCheck.state = Preferences.shared.autoSelectNotesByTitle ? .on : .off
         view.addSubview(autoSelectCheck)
 
-        yPos -= 22
-        let autoSelectNote = createLabel("Automatically selecting very long notes may affect\nresponsiveness.", at: NSPoint(x: 70, y: yPos - 10), alignment: .left, width: 350)
+        yPos -= 25
+        let autoSelectNote = createLabel("Automatically selecting very long notes may affect responsiveness.", at: NSPoint(x: 70, y: yPos), alignment: .left, width: 380)
         autoSelectNote.font = NSFont.systemFont(ofSize: 11)
         autoSelectNote.textColor = .secondaryLabelColor
         view.addSubview(autoSelectNote)
 
-        yPos -= 55
+        yPos -= 40
 
         let noteLinkingCheck = NSButton(checkboxWithTitle: "Enable note linking ([[wiki links]])", target: self, action: #selector(noteLinkingChanged(_:)))
-        noteLinkingCheck.frame = NSRect(x: 50, y: yPos, width: 350, height: 20)
+        noteLinkingCheck.frame = NSRect(x: 50, y: yPos, width: 380, height: 20)
         noteLinkingCheck.state = Preferences.shared.enableNoteLinking ? .on : .off
         view.addSubview(noteLinkingCheck)
 
-        yPos -= 40
+        yPos -= 35
 
         let confirmDeleteCheck = NSButton(checkboxWithTitle: "Confirm note deletion", target: self, action: #selector(confirmDeleteChanged(_:)))
-        confirmDeleteCheck.frame = NSRect(x: 50, y: yPos, width: 350, height: 20)
+        confirmDeleteCheck.frame = NSRect(x: 50, y: yPos, width: 380, height: 20)
         confirmDeleteCheck.state = Preferences.shared.confirmNoteDeletion ? .on : .off
         view.addSubview(confirmDeleteCheck)
 
         yPos -= 35
 
         let quitOnCloseCheck = NSButton(checkboxWithTitle: "Quit when closing window", target: self, action: #selector(quitOnCloseChanged(_:)))
-        quitOnCloseCheck.frame = NSRect(x: 50, y: yPos, width: 350, height: 20)
+        quitOnCloseCheck.frame = NSRect(x: 50, y: yPos, width: 380, height: 20)
         quitOnCloseCheck.state = Preferences.shared.quitWhenClosingWindow ? .on : .off
         view.addSubview(quitOnCloseCheck)
 
         yPos -= 35
 
         let menuBarCheck = NSButton(checkboxWithTitle: "Show menu bar icon", target: self, action: #selector(menuBarIconChanged(_:)))
-        menuBarCheck.frame = NSRect(x: 50, y: yPos, width: 350, height: 20)
+        menuBarCheck.frame = NSRect(x: 50, y: yPos, width: 380, height: 20)
         menuBarCheck.state = Preferences.shared.showMenuBarIcon ? .on : .off
         view.addSubview(menuBarCheck)
 
-        yPos -= 45
+        yPos -= 35
+
+        let statusBarCheck = NSButton(checkboxWithTitle: "Show editor status bar (word/character count)", target: self, action: #selector(statusBarChanged(_:)))
+        statusBarCheck.frame = NSRect(x: 50, y: yPos, width: 380, height: 20)
+        statusBarCheck.state = Preferences.shared.showEditorStatusBar ? .on : .off
+        view.addSubview(statusBarCheck)
+
+        yPos -= 35
+
+        let noteListStatusBarCheck = NSButton(checkboxWithTitle: "Show note list status bar (note count)", target: self, action: #selector(noteListStatusBarChanged(_:)))
+        noteListStatusBarCheck.frame = NSRect(x: 50, y: yPos, width: 380, height: 20)
+        noteListStatusBarCheck.state = Preferences.shared.showNoteListStatusBar ? .on : .off
+        view.addSubview(noteListStatusBarCheck)
+
+        yPos -= 50
 
         let hideDockButton = NSButton(frame: NSRect(x: 50, y: yPos, width: 140, height: 28))
         hideDockButton.title = "Hide Dock Icon"
@@ -140,58 +152,69 @@ class PreferencesWindowController: NSWindowController {
 
         let view = NSView(frame: NSRect(x: 0, y: 0, width: 460, height: 440))
 
-        var yPos: CGFloat = 390
+        var yPos: CGFloat = 400
 
-        let folderLabel = createLabel("Read notes from folder:", at: NSPoint(x: 30, y: yPos), alignment: .right, width: 170)
+        let folderLabel = createLabel("Read notes from folder:", at: NSPoint(x: 50, y: yPos), alignment: .left, width: 170)
         view.addSubview(folderLabel)
 
-        let folderButton = NSPopUpButton(frame: NSRect(x: 210, y: yPos - 2, width: 220, height: 26), pullsDown: false)
+        let folderButton = NSPopUpButton(frame: NSRect(x: 220, y: yPos - 2, width: 200, height: 26), pullsDown: false)
         folderButton.addItem(withTitle: NoteManager.shared.notesDirectory?.lastPathComponent ?? "Choose Folder...")
-        folderButton.lastItem?.image = NSImage(named: NSImage.folderName)
+        // Create a smaller folder icon
+        if let folderIcon = NSImage(named: NSImage.folderName) {
+            let smallIcon = NSImage(size: NSSize(width: 16, height: 16))
+            smallIcon.lockFocus()
+            folderIcon.draw(in: NSRect(x: 0, y: 0, width: 16, height: 16),
+                           from: NSRect(origin: .zero, size: folderIcon.size),
+                           operation: .copy, fraction: 1.0)
+            smallIcon.unlockFocus()
+            folderButton.lastItem?.image = smallIcon
+        }
         folderButton.addItem(withTitle: "Other...")
         folderButton.target = self
         folderButton.action = #selector(chooseNotesFolder(_:))
         view.addSubview(folderButton)
 
-        yPos -= 60
+        yPos -= 55
 
-        let storageBox = NSBox(frame: NSRect(x: 30, y: yPos - 120, width: 400, height: 140))
+        let storageBox = NSBox(frame: NSRect(x: 30, y: yPos - 130, width: 400, height: 150))
         storageBox.title = "Storage"
         storageBox.titlePosition = .atTop
+        storageBox.titleFont = NSFont.boldSystemFont(ofSize: 13)
         view.addSubview(storageBox)
 
-        let storageContent = NSView(frame: NSRect(x: 10, y: 10, width: 380, height: 100))
+        let storageContent = NSView(frame: NSRect(x: 10, y: 10, width: 380, height: 110))
 
-        let storeLabel = createLabel("Store notes as:", at: NSPoint(x: 10, y: 70), alignment: .left, width: 120)
+        let storeLabel = createLabel("Store notes as:", at: NSPoint(x: 10, y: 80), alignment: .left, width: 120)
         storageContent.addSubview(storeLabel)
 
-        let formatPopup = NSPopUpButton(frame: NSRect(x: 140, y: 68, width: 180, height: 26), pullsDown: false)
+        let formatPopup = NSPopUpButton(frame: NSRect(x: 140, y: 78, width: 180, height: 26), pullsDown: false)
         formatPopup.addItems(withTitles: ["Rich Text (.rtf)", "Plain Text (.txt)"])
         formatPopup.selectItem(at: 0)
         storageContent.addSubview(formatPopup)
 
-        let infoLabel = createLabel("Notes are stored as individual files in your selected\nfolder. You can access them with any text editor.", at: NSPoint(x: 10, y: 20), alignment: .left, width: 360)
+        let infoLabel = createLabel("Notes are stored as individual files in your selected\nfolder. You can access them with any text editor.", at: NSPoint(x: 10, y: 25), alignment: .left, width: 360)
         infoLabel.font = NSFont.systemFont(ofSize: 11)
         infoLabel.textColor = .secondaryLabelColor
         storageContent.addSubview(infoLabel)
 
         storageBox.contentView = storageContent
 
-        yPos -= 180
+        yPos -= 190
 
-        let watchBox = NSBox(frame: NSRect(x: 30, y: yPos - 80, width: 400, height: 100))
+        let watchBox = NSBox(frame: NSRect(x: 30, y: yPos - 100, width: 400, height: 120))
         watchBox.title = "File Watching"
         watchBox.titlePosition = .atTop
+        watchBox.titleFont = NSFont.boldSystemFont(ofSize: 13)
         view.addSubview(watchBox)
 
-        let watchContent = NSView(frame: NSRect(x: 10, y: 10, width: 380, height: 60))
+        let watchContent = NSView(frame: NSRect(x: 10, y: 10, width: 380, height: 80))
 
         let watchCheck = NSButton(checkboxWithTitle: "Watch for external changes", target: nil, action: nil)
-        watchCheck.frame = NSRect(x: 10, y: 35, width: 250, height: 20)
+        watchCheck.frame = NSRect(x: 10, y: 50, width: 300, height: 20)
         watchCheck.state = .on
         watchContent.addSubview(watchCheck)
 
-        let watchNote = createLabel("Automatically reload notes when files are modified\nby other applications.", at: NSPoint(x: 10, y: 5), alignment: .left, width: 360)
+        let watchNote = createLabel("Automatically reload notes when files are modified\nby other applications.", at: NSPoint(x: 10, y: 10), alignment: .left, width: 360)
         watchNote.font = NSFont.systemFont(ofSize: 11)
         watchNote.textColor = .secondaryLabelColor
         watchContent.addSubview(watchNote)
@@ -381,33 +404,22 @@ class PreferencesWindowController: NSWindowController {
 
         yPos -= 45
 
-        let gridLabel = createLabel("Always Show Grid Lines in Notes List:", at: NSPoint(x: 30, y: yPos), alignment: .right, width: 280)
-        view.addSubview(gridLabel)
-
-        let gridCheck = NSButton(checkboxWithTitle: "", target: self, action: #selector(gridLinesChanged(_:)))
-        gridCheck.frame = NSRect(x: 320, y: yPos, width: 20, height: 20)
+        let gridCheck = NSButton(checkboxWithTitle: "Always show grid lines in notes list", target: self, action: #selector(gridLinesChanged(_:)))
+        gridCheck.frame = NSRect(x: 50, y: yPos, width: 350, height: 20)
         gridCheck.state = Preferences.shared.alwaysShowGridLines ? .on : .off
         view.addSubview(gridCheck)
 
-        yPos -= 35
+        yPos -= 30
 
-        // Alternating row colors
-        let alternatingLabel = createLabel("Alternating Row Colors:", at: NSPoint(x: 30, y: yPos), alignment: .right, width: 280)
-        view.addSubview(alternatingLabel)
-
-        let alternatingCheck = NSButton(checkboxWithTitle: "", target: self, action: #selector(alternatingRowsChanged(_:)))
-        alternatingCheck.frame = NSRect(x: 320, y: yPos, width: 20, height: 20)
+        let alternatingCheck = NSButton(checkboxWithTitle: "Alternating row colors", target: self, action: #selector(alternatingRowsChanged(_:)))
+        alternatingCheck.frame = NSRect(x: 50, y: yPos, width: 350, height: 20)
         alternatingCheck.state = Preferences.shared.alternatingRowColors ? .on : .off
         view.addSubview(alternatingCheck)
 
-        yPos -= 35
+        yPos -= 30
 
-        // Keep note body width readable
-        let readableLabel = createLabel("Keep Note Body Width Readable:", at: NSPoint(x: 30, y: yPos), alignment: .right, width: 280)
-        view.addSubview(readableLabel)
-
-        let readableCheck = NSButton(checkboxWithTitle: "", target: self, action: #selector(readableWidthChanged(_:)))
-        readableCheck.frame = NSRect(x: 320, y: yPos, width: 20, height: 20)
+        let readableCheck = NSButton(checkboxWithTitle: "Keep note body width readable", target: self, action: #selector(readableWidthChanged(_:)))
+        readableCheck.frame = NSRect(x: 50, y: yPos, width: 350, height: 20)
         readableCheck.state = Preferences.shared.keepNoteBodyWidthReadable ? .on : .off
         view.addSubview(readableCheck)
 
@@ -457,6 +469,14 @@ class PreferencesWindowController: NSWindowController {
 
     @objc private func menuBarIconChanged(_ sender: NSButton) {
         Preferences.shared.showMenuBarIcon = sender.state == .on
+    }
+
+    @objc private func statusBarChanged(_ sender: NSButton) {
+        Preferences.shared.showEditorStatusBar = sender.state == .on
+    }
+
+    @objc private func noteListStatusBarChanged(_ sender: NSButton) {
+        Preferences.shared.showNoteListStatusBar = sender.state == .on
     }
 
     @objc private func hideDockIconClicked(_ sender: NSButton) {
